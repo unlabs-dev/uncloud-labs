@@ -70,7 +70,7 @@ After you start the linked playground, you'll first see the shell on :tab{text='
 
 To test that the `uc` command works, run the following on :tab{text='dev-machine' machine='dev-machine'} to get the version of the Uncloud client:
 
-```bash
+```sh
 uc --version
 ```
 
@@ -89,7 +89,7 @@ kind: warning
 Let's initialize our first cluster by setting up `server-1` as the first machine.
 Run the following commands on `dev-machine`:
 
-```bash
+```sh
 uc machine init laborant@server-1 --public-ip none --no-dns
 ```
 
@@ -204,7 +204,7 @@ Now that we have a working cluster, let's deploy a simple web application to see
 
 First, let's check the currently running services:
 
-```bash
+```sh
 uc ls
 ```
 
@@ -223,8 +223,8 @@ We can see that the Caddy web server was automatically deployed in the "global" 
 
 We are ready to run the following command to deploy the Excalidraw service:
 
-```bash
-uc run -n excalidraw -p excalidraw.internal:80/http excalidraw/excalidraw
+```sh
+uc run --name excalidraw --publish excalidraw.internal:80/http excalidraw/excalidraw
 ```
 
 After a few moments, you'll see output showing the service is running:
@@ -281,7 +281,7 @@ You can also reach the service from the :tab{text='dev-machine' machine='dev-mac
 
 ```sh
 # You can target ANY server of the cluster (server-1 or server-2)
-curl -H 'Host: excalidraw.internal' server-1
+curl --header 'Host: excalidraw.internal' server-1
 ```
 
 Congratulations! You've successfully created a multi-machine Uncloud cluster and deployed your first service. You can now explore more advanced features like scaling services across machines, using Docker Compose files, and setting up HTTPS ingress with custom domains.
