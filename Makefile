@@ -53,7 +53,8 @@ push-playgrounds:
 
 TUTORIALS_DIR = $(MANIFESTS_DIR)/tutorials
 TUTORIALS_IDS = \
-	uncloud-create-cluster-ebebf72b
+	uncloud-create-cluster-ebebf72b \
+	uncloud-deploy-django-app-7a378bc3
 
 pull-tutorials:
 	@mkdir -p $(TUTORIALS_DIR)

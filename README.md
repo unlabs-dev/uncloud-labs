@@ -40,24 +40,37 @@ make push-img-uncloud-server
 
 ```
 
-## Playground Management
+## Material Management
+
+This section covers the management of playgrounds and tutorials hosted on iximiuz Labs.
+
+### Prerequisites
+
+- [labctl](https://github.com/iximiuz/labctl) - CLI tool for managing iximiuz Labs content
+
+### Managed Tutorials
+
+Currently managed tutorials:
+
+- [Create an Uncloud Cluster](https://labs.iximiuz.com/tutorials/uncloud-create-cluster-ebebf72b) - `manifests/tutorials/uncloud-create-cluster-ebebf72b/`
+- [Deploy a Django App with Uncloud](https://labs.iximiuz.com/tutorials/uncloud-deploy-django-app-7a378bc3) - `manifests/tutorials/uncloud-deploy-django-app-7a378bc3/`
 
 ### Managed Playgrounds
 
 Currently managed playgrounds:
 
-- [Uncloud Cluster](https://labs.iximiuz.com/playgrounds/uncloud-cluster-64523f7c)
+- [Initialized Uncloud Cluster](https://labs.iximiuz.com/playgrounds/uncloud-cluster-64523f7c) - `manifests/playgrounds/uncloud-cluster-64523f7c.yaml`
+- [Uninitialized Uncloud Cluster](https://labs.iximiuz.com/playgrounds/uncloud-uninitialized-cluster-cacb63ae) - `manifests/playgrounds/uncloud-uninitialized-cluster-cacb63ae.yaml`
 
 ### Persisting Manifests
 
-Prerequisites:
-
-- [labctl](https://github.com/iximiuz/labctl)
-
-You can save the manifests of all the managed playgrounds locally to [`manifests/`](./manifests/) directory:
+You can save the manifests of all managed playgrounds and tutorials locally to the [`manifests/`](./manifests/) directory:
 
 ```bash
 make pull-playgrounds
 ```
 
-This is currently done purely for backup and version tracking reasons.
+This is currently done purely for backup and version tracking reasons. The manifests are organized as:
+
+- `manifests/playgrounds/` - YAML files for playground configurations
+- `manifests/tutorials/` - Markdown files and assets for tutorial content
