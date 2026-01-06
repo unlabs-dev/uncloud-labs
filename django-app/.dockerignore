@@ -1,0 +1,14 @@
+*.pyc
+__pycache__/
+db.sqlite3
+*.sqlite3
+.git/
+.env
+.venv/
+venv/
+*.md
+.python-version
+main.py
+SPEC.md
+Dockerfile
+.dockerignore

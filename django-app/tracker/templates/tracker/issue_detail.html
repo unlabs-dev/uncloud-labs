@@ -1,0 +1,71 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}{{ issue.title }} - Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="issue-detail">
+    <div class="issue-header">
+        <h2>{{ issue.title }}</h2>
+        <div class="actions">
+            <a href="{% url 'issue_edit' issue.pk %}" class="btn btn-secondary">Edit</a>
+            <a href="{% url 'issue_delete' issue.pk %}" class="btn btn-danger">Delete</a>
+        </div>
+    </div>
+
+    <div class="issue-meta">
+        <span class="badge badge-status-{{ issue.status|lower }}">{{ issue.get_status_display }}</span>
+        <span class="badge badge-priority-{{ issue.priority }}">{{ issue.get_priority_display }}</span>
+        <span class="meta-item">Created: {{ issue.created_at|date:"M d, Y H:i" }}</span>
+        <span class="meta-item">Updated: {{ issue.updated_at|date:"M d, Y H:i" }}</span>
+    </div>
+
+    <div class="issue-description">
+        <h3>Description</h3>
+        {% if issue.description %}
+            <p>{{ issue.description|linebreaks }}</p>
+        {% else %}
+            <p class="text-muted">No description provided.</p>
+        {% endif %}
+    </div>
+
+    <div class="comments-section">
+        <h3>Comments ({{ comments.count }})</h3>
+
+        {% if comments %}
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-header">
+                    <strong>{{ comment.author_name }}</strong>
+                    <span class="comment-date">{{ comment.created_at|date:"M d, Y H:i" }}</span>
+                </div>
+                <div class="comment-text">
+                    {{ comment.text|linebreaks }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="add-comment">
+            <h4>Add a Comment</h4>
+            <form method="post" action="{% url 'comment_add' issue.pk %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ comment_form.author_name.id_for_label }}">Your Name</label>
+                    {{ comment_form.author_name }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ comment_form.text.id_for_label }}">Comment</label>
+                    {{ comment_form.text }}
+                </div>
+                <button type="submit" class="btn btn-primary">Add Comment</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="{% url 'issue_list' %}">← Back to Issues</a>
+    </div>
+</div>
+{% endblock %}
