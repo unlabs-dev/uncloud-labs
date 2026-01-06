@@ -6,11 +6,11 @@ Playground and tutorial configurations for [iximiuz Labs](https://labs.iximiuz.c
 
 This repository builds the following rootfs images in the form of Docker images:
 
-- **uncloud-devmachine**: Development environment with Docker and Uncloud CLI
+- **rootfs-images/uncloud-devmachine**: Development environment with Docker and Uncloud CLI
 
   - `ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-devmachine`
 
-- **uncloud-server**: Server environment with Docker and Uncloud server components
+- **rootfs-images/uncloud-server**: Server environment with Docker and Uncloud server components
 
   - `ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-server`
 

@@ -9,7 +9,7 @@ all:
 build-img-%:
 	docker build \
 		--progress plain \
-		-f ./$*/Dockerfile \
+		-f ./rootfs-images/$*/Dockerfile \
 		-t $(IMAGE_REPO):$* \
 		.
 .PHONY: build-img-%
@@ -19,8 +19,8 @@ push-img-%: build-img-%
 .PHONY: push-img-%
 
 test-img-%: build-img-%
-	@test -f $*/test.sh || { echo "Error: $*/test.sh not found"; exit 1; }
-	docker run --rm $(IMAGE_REPO):$* bash -c "$$(cat $*/test.sh)"
+	@test -f rootfs-images/$*/test.sh || { echo "Error: rootfs-images/$*/test.sh not found"; exit 1; }
+	docker run --rm $(IMAGE_REPO):$* bash -c "$$(cat rootfs-images/$*/test.sh)"
 .PHONY: test-img-%
 
 ### Playgrounds
