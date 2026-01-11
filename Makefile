@@ -27,8 +27,8 @@ test-img-%: build-img-%
 
 PLAYGROUND_IDS = \
 	uncloud-cluster-64523f7c \
-	uncloud-uninitialized-cluster-cacb63ae
-
+	uncloud-uninitialized-cluster-cacb63ae \
+	uncloud-django-app-2b759193
 
 PLAYGROUND_DIR = $(MANIFESTS_DIR)/playgrounds
 
