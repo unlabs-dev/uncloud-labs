@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('author_name', models.CharField(max_length=80)),
                 ('text', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('issue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='tracker.issue')),
+                ('issue', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='issues.issue')),
             ],
             options={
                 'ordering': ['created_at'],

@@ -33,7 +33,7 @@ playground:
 
 ## Introduction
 
-Welcome! In this hands-on tutorial, you'll learn how to deploy a Django web application to a remote Linux server using Uncloud.
+In this hands-on tutorial, you'll learn how to deploy a Django web application from source code to a remote Linux server using Uncloud.
 
 ::remark-box
 💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress — all without the complexity of Kubernetes.
@@ -43,9 +43,9 @@ Welcome! In this hands-on tutorial, you'll learn how to deploy a Django web appl
 
 Before starting this tutorial, you should have:
 
-- A basic understanding of Docker and containers
-- Familiarity with Django or Python web frameworks
-- An Uncloud cluster with at least one machine (refer to our [How to Create an Uncloud Cluster](../uncloud-create-cluster-ebebf72b/) tutorial if you haven't set one up yet)
+- A basic understanding of [Docker](https://www.docker.com/) and containers. There are great tutorials and courses available on iximiuz Labs (the very same platform you're using now), for example check out the [Docker skill path](https://labs.iximiuz.com/skill-paths/docker-101-run-and-manage-containers) if you want to brush up on fundamentals.
+- Familiarity with [Python](https://www.python.org/) and the [Django](https://www.djangoproject.com/) web framework.
+- A basic understanding of Uncloud and how an Uncloud cluster functions. If you haven't completed the initial Uncloud tutorial ([How to Create an Uncloud Cluster](../uncloud-create-cluster-ebebf72b/)), we recommend you to start there.
 
 **What You'll Learn**
 
@@ -55,6 +55,7 @@ By the end of this tutorial, you'll be able to:
 2. Create a Compose file for deployment configuration
 3. Build and deploy your application using `uc deploy`
 4. Access your deployed application through the web browser
+5. Check the application logs
 
 Let's get started!
 
@@ -71,16 +72,7 @@ In this tutorial, you have access to the following machines:
 - :tab{text='dev-machine' machine='dev-machine'} - the control-only environment where you'll prepare the application and run Uncloud CLI commands. Think of it as your developer machine that you'll use to control the cluster remotely.
 - :tab{text='server-1' machine='server-1'}, :tab{text='server-2' machine='server-2'} - two Ubuntu machines that are already part of an initialized Uncloud cluster where your application will be deployed.
 
-The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. This is a sample issue tracking application built with Django that demonstrates the core concepts of deploying a Python web application.
-
-You can explore the application structure by running on :tab{text='dev-machine' machine='dev-machine'}:
-
-```sh
-cd ~/app
-ls -la
-```
-
----
+The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. This is a sample issue tracking application built with Django that we'll be using as an example.
 
 ## Preparing Your Django Application
 

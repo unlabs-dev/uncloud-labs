@@ -16,7 +16,7 @@ def issue_list(request):
         'issues': issues,
         'status_filter': status_filter,
     }
-    return render(request, 'tracker/issue_list.html', context)
+    return render(request, 'issues/issue_list.html', context)
 
 
 def issue_detail(request, pk):
@@ -30,7 +30,7 @@ def issue_detail(request, pk):
         'comments': comments,
         'comment_form': comment_form,
     }
-    return render(request, 'tracker/issue_detail.html', context)
+    return render(request, 'issues/issue_detail.html', context)
 
 
 def issue_create(request):
@@ -48,7 +48,7 @@ def issue_create(request):
         'form_title': 'Create New Issue',
         'submit_text': 'Create Issue',
     }
-    return render(request, 'tracker/issue_form.html', context)
+    return render(request, 'issues/issue_form.html', context)
 
 
 def issue_edit(request, pk):
@@ -69,7 +69,7 @@ def issue_edit(request, pk):
         'submit_text': 'Update Issue',
         'issue': issue,
     }
-    return render(request, 'tracker/issue_form.html', context)
+    return render(request, 'issues/issue_form.html', context)
 
 
 def issue_delete(request, pk):
@@ -83,7 +83,7 @@ def issue_delete(request, pk):
     context = {
         'issue': issue,
     }
-    return render(request, 'tracker/issue_confirm_delete.html', context)
+    return render(request, 'issues/issue_confirm_delete.html', context)
 
 
 def comment_add(request, pk):
