@@ -202,7 +202,12 @@ To switch contexts, use [`uc ctx use`](https://uncloud.run/docs/cli-reference/uc
 
 Now that we have a working cluster, let's deploy a simple web application to see the cluster in action. We'll use [Excalidraw](https://excalidraw.com), a popular sketching and diagramming tool.
 
-First, let's check the currently running services:
+First, let's deploy the caddy service to act as our reverse proxy:
+```bash
+uc caddy deploy
+```
+
+Now we can check the currently running services:
 
 ```bash
 uc ls
