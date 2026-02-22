@@ -45,7 +45,7 @@ Before starting this tutorial, you should have:
 
 - A basic understanding of [Docker](https://www.docker.com/) and containers. There are great tutorials and courses available on iximiuz Labs (the very same platform you're using now), for example check out the [Docker skill path](https://labs.iximiuz.com/skill-paths/docker-101-run-and-manage-containers) if you want to brush up on fundamentals.
 - Familiarity with [Python](https://www.python.org/) and the [Django](https://www.djangoproject.com/) web framework.
-- A basic understanding of Uncloud and how an Uncloud cluster functions. If you haven't completed the initial Uncloud tutorial ([How to Create an Uncloud Cluster](../uncloud-create-cluster-ebebf72b/)), we recommend you to start there.
+- A basic understanding of Uncloud and how an Uncloud cluster functions. If you haven't completed the initial Uncloud tutorial ([How to Create an Uncloud Cluster](https://labs.iximiuz.com/tutorials/uncloud-create-cluster-ebebf72b)), we recommend you to start there.
 
 **What You'll Learn**
 
@@ -131,10 +131,6 @@ This Dockerfile:
 5. Collects Django static files
 6. Exposes port 8000
 7. Runs the Django development server when the container starts
-
-::remark-box
-📝 **Production Note**: In a production environment, you would typically use a production-ready server like [Gunicorn](https://gunicorn.org/) (WSGI) or [Uvicorn](https://uvicorn.dev/) (ASGI) instead of Django's development server. For this tutorial, we'll keep it simple with the built-in Django's development server.
-::
 
 ::remark-box
 📝 **Dependency management**: We're using "plain" `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mostly to not shift away the focus from Uncloud-related concepts. For modern alternatives we recommended to look at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
@@ -403,8 +399,7 @@ Congratulations! You've successfully deployed a Django application to Uncloud. H
 1. **Add a Database Service**: Extend your `compose.yaml` to include a PostgreSQL database service instead of SQLite
 2. **Environment Variables**: Use environment variables for sensitive configuration like database passwords
 3. **Multiple Services**: Deploy additional services like Redis for caching or Celery for background tasks
-4. **Production Configuration**: Replace the development server with Gunicorn and add Nginx for serving static files
-5. **Scale Your Service**: Try scaling your web service to multiple replicas with [`uc scale`](https://uncloud.run/docs/cli-reference/uc_scale): `uc scale web 2`
+4. **Scale Your Service**: Try scaling your web service to multiple replicas with [`uc scale`](https://uncloud.run/docs/cli-reference/uc_scale): `uc scale web 2`
 
 ### Additional Resources
 

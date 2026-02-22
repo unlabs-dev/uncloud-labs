@@ -1,1 +1,12 @@
-# TODO
+services:
+  web:
+    # Build the image from the current directory
+    build: .
+
+    # Expose the application on a public URL
+    # Replace 'app.example.com' with your actual domain
+    x-ports:
+      - tracker.internal:8000/http
+
+    # Restart policy
+    restart: unless-stopped
