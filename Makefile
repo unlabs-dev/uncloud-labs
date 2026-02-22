@@ -81,3 +81,17 @@ stream-tutorial:
 stream-tutorial/%:
 	labctl content push tutorial -f -w $* -d $(TUTORIALS_DIR)/$*/
 .PHONY: push-stream-tutorial/%
+
+IXIMIUZ_LABS_DIR = vendor/iximiuz-labs
+
+download-iximiuz-rules:
+	@mkdir -p $(IXIMIUZ_LABS_DIR)
+	@if [ -d "$(IXIMIUZ_LABS_DIR)/.git" ]; then \
+		echo ">>> Pulling latest changes from iximiuz/labs..."; \
+		cd $(IXIMIUZ_LABS_DIR) && git pull; \
+	else \
+		echo ">>> Cloning iximiuz/labs repository..."; \
+		git clone https://github.com/iximiuz/labs.git $(IXIMIUZ_LABS_DIR); \
+	fi
+	@echo ">>> Downloaded iximiuz/labs to $(IXIMIUZ_LABS_DIR)"
+.PHONY: download-iximiuz-rules

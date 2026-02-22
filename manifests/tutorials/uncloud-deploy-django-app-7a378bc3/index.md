@@ -53,7 +53,7 @@ By the end of this tutorial, you'll be able to:
 
 1. Dockerize a Django application by creating a Dockerfile
 2. Create a Compose file for deployment configuration
-3. Build and deploy your application using `uc deploy`
+3. Build and deploy your application using Uncloud
 4. Access your deployed application through the web browser
 5. Check the application logs
 
@@ -85,52 +85,41 @@ cd ~/app
 tree -L 2
 ```
 
-You should see a typical Django project structure with:
+You should see a typical Django project structure:
 
-- `manage.py` - Django management script
-- `issuetracker/` - Main project directory with settings
-- `tracker/` - Application directory with models, views, and templates
-- `requirements.txt` - Python dependencies
-
-<!-- prettier-ignore-start -->
-::image-box
----
-:src: __static__/django-app-structure.png
-:alt: 'Django Application Structure'
-:max-width: 600px
----
-
-_Django application directory structure._
-::
-<!-- prettier-ignore-end -->
+```
+.
+├── README.md
+├── issuetracker        # Main project directory with core settings and routing configuration
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── manage.py           # Django management script
+├── requirements.txt    # File listing Python dependencies
+└── tracker             # Application directory with models, views, and templates
+    ├── __init__.py
+    ├── admin.py
+    ├── apps.py
+    ├── forms.py
+    ├── migrations
+    ├── models.py
+    ├── static
+    ├── templates
+    ├── tests.py
+    ├── urls.py
+    └── views.py
+```
 
 ### Dockerizing the Application
 
-To deploy this application with Uncloud, we need to containerize it using Docker. This means creating a `Dockerfile` that defines how to build a container image for our application.
+To deploy this application with Uncloud, we need to containerize it first. This means creating a `Dockerfile` that defines how to build a container image for our application.
 
 Create a `Dockerfile` at `~/app/Dockerfile` with the following content:
 
 ```dockerfile
-FROM python:3.12-slim
-
-# Set working directory
-WORKDIR /app
-
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY . .
-
-# Collect static files
-RUN python manage.py collectstatic --noinput
-
-# Expose the port Django runs on
-EXPOSE 8000
-
-# Run Django development server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+### FIXME: copy from Dockerfile
 ```
 
 This Dockerfile:
@@ -144,7 +133,11 @@ This Dockerfile:
 7. Runs the Django development server when the container starts
 
 ::remark-box
-📝 **Production Note**: In a production environment, you would typically use a production-ready WSGI server like Gunicorn instead of Django's development server. For this tutorial, we'll keep it simple with the development server.
+📝 **Production Note**: In a production environment, you would typically use a production-ready server like [Gunicorn](https://gunicorn.org/) (WSGI) or [Uvicorn](https://uvicorn.dev/) (ASGI) instead of Django's development server. For this tutorial, we'll keep it simple with the built-in Django's development server.
+::
+
+::remark-box
+📝 **Dependency management**: We're using "plain" `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mostly to not shift away the focus from Uncloud-related concepts. For modern alternatives we recommended to look at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
 ::
 
 ### Testing the Docker Build
