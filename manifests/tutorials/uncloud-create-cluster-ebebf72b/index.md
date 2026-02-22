@@ -34,7 +34,7 @@ playground:
 <!--
 Docs: [How to Author Tutorials on iximiuz Labs](https://labs.iximiuz.com/tutorials/sample-tutorial)
 
-Source code: https://github.com/iximiuz/labs-content-samples/blob/main/sample-tutorial/index.md?plain=1
+Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tutorial/index.md?plain=1
 -->
 
 In this tutorial, you'll learn how to create and manage an Uncloud cluster from scratch. By the end, you'll have a working multi-machine cluster ready to run containerized applications that looks like this:

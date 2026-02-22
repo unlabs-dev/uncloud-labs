@@ -1,8 +1,10 @@
+# Use Python 3.14 as the base image
 FROM python:3.14-slim
 
+# Set up the working directory
 WORKDIR /app
 
-# Install dependencies
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -24,5 +26,5 @@ EXPOSE 8000
 # Declare volume for database persistence
 VOLUME ["/data"]
 
-# Run migrations and start gunicorn
+# Run database migrations and start Gunicorn application server
 CMD ["sh", "-c", "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application"]

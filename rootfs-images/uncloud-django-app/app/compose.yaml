@@ -7,6 +7,3 @@ services:
     # Replace 'app.example.com' with your actual domain
     x-ports:
       - issue-tracker.internal:8000/http
-
-    # Restart policy
-    restart: unless-stopped

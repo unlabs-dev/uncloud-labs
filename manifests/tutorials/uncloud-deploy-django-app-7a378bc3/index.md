@@ -31,9 +31,15 @@ playground:
       machine: server-1
 ---
 
-## Introduction
+<!--
+Docs: [How to Author Tutorials on iximiuz Labs](https://labs.iximiuz.com/tutorials/sample-tutorial)
 
-In this hands-on tutorial, you'll learn how to deploy a Django web application from source code to a remote Linux server using Uncloud.
+Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tutorial/index.md?plain=1
+-->
+
+Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen of different tools and cloud services?
+
+In this hands-on tutorial, you'll learn how to deploy a Django web application fast and easy from source code to a remote Linux server using Uncloud.
 
 ::remark-box
 💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress — all without the complexity of Kubernetes.
@@ -69,16 +75,18 @@ To get started, click the "Start Tutorial" button located under the table of con
 
 In this tutorial, you have access to the following machines:
 
-- :tab{text='dev-machine' machine='dev-machine'} - the control-only environment where you'll prepare the application and run Uncloud CLI commands. Think of it as your developer machine that you'll use to control the cluster remotely.
+- :tab{text='dev-machine' machine='dev-machine'} - the control-only environment where you'll prepare the application and run Uncloud CLI commands. Think of it as your developer machine that you'll use to control the cluster remotely. The Uncloud cluster is already initialized and can be managed by the `uc` command.
 - :tab{text='server-1' machine='server-1'}, :tab{text='server-2' machine='server-2'} - two Ubuntu machines that are already part of an initialized Uncloud cluster where your application will be deployed.
-
-The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. This is a sample issue tracking application built with Django that we'll be using as an example.
 
 ## Preparing Your Django Application
 
+The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. This is a sample issue tracking application built with Django that we'll be using as an example.
+
+The application uses SQLite database as the main data storage.
+
 ### Understanding the Application Structure
 
-The Django application in this tutorial is a simple issue tracker. Let's take a look at its structure:
+Let's take a look at the application structure:
 
 ```sh
 cd ~/app
@@ -90,10 +98,11 @@ You should see a typical Django project structure:
 ```
 .
 ├── README.md
+├── Dockerfile          # FIXME
 ├── issuetracker        # Main project directory with core settings and routing configuration
 │   ├── __init__.py
 │   ├── asgi.py
-│   ├── settings.py
+│   ├── settings.py     # Project settings
 │   ├── urls.py
 │   └── wsgi.py
 ├── manage.py           # Django management script
@@ -112,25 +121,46 @@ You should see a typical Django project structure:
     └── views.py
 ```
 
+Check the [Django documentation](https://docs.djangoproject.com/en/) if you want to dig deeper on the format and purpose of each component.
+
 ### Dockerizing the Application
 
-To deploy this application with Uncloud, we need to containerize it first. This means creating a `Dockerfile` that defines how to build a container image for our application.
+To deploy this application with Uncloud, we need to containerize it first. There is already an existing `Dockerfile` file at `~/app/Dockerfile` that defines how to build a container image for our application.
 
-Create a `Dockerfile` at `~/app/Dockerfile` with the following content:
+Let's have a look at it:
 
-```dockerfile
-### FIXME: copy from Dockerfile
+```dockerfile [~/app/Dockerfile]
+# Use Python 3.14 as the base image
+FROM python:3.14-slim
+
+# Set up the working directory
+WORKDIR /app
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create data directory for database
+RUN mkdir -p /data
+
+# Set environment variable for database path
+ENV DATABASE_PATH=/data/db.sqlite3
+
+# Copy application code
+COPY . .
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Expose application port
+EXPOSE 8000
+
+# Declare volume for database persistence
+VOLUME ["/data"]
+
+# Run database migrations and start Gunicorn application server
+CMD ["sh", "-c", "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application"]
 ```
-
-This Dockerfile:
-
-1. Uses Python 3.12 as the base image
-2. Sets up the working directory
-3. Installs Python dependencies from `requirements.txt`
-4. Copies the application code into the container
-5. Collects Django static files
-6. Exposes port 8000
-7. Runs the Django development server when the container starts
 
 ::remark-box
 📝 **Dependency management**: We're using "plain" `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mostly to not shift away the focus from Uncloud-related concepts. For modern alternatives we recommended to look at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
@@ -138,44 +168,39 @@ This Dockerfile:
 
 ### Testing the Docker Build
 
-Before deploying to Uncloud, let's verify that our Docker image builds successfully:
+Before deploying with Uncloud, let's verify that our Docker image builds successfully:
 
 ```sh
 cd ~/app
-docker build -t django-app:test .
+docker build -t issue-tracker .
 ```
 
-You should see Docker building the image layer by layer. If the build completes successfully, you're ready to deploy!
+You should see Docker building the image layer by layer.
 
 You can verify the image was created:
 
-```bash
-docker images | grep django-app
+```sh
+docker images
 ```
 
-<!-- prettier-ignore-start -->
-::image-box
----
-:src: __static__/docker-build-output.png
-:alt: 'Docker Build Output'
-:max-width: 700px
----
+The output should look similar to this:
 
-_Successful Docker build showing all layers._
-::
-<!-- prettier-ignore-end -->
+```
+laborant@dev-machine:app$ docker images
 
----
+IMAGE                  ID             DISK USAGE   CONTENT SIZE   EXTRA
+issue-tracker:latest   96b10b1a9bfc        263MB         57.5MB
+```
 
 ## Deploying to Uncloud Cluster
 
-Now that we have a Dockerized application, let's deploy it to your Uncloud cluster.
+Now that we confirmed that our Dockerfile is capable of creating an image for our app without any error, we now have everything we need to deploy the application using Uncloud.
 
 ### Creating a Compose File
 
-Uncloud uses the [Compose Specification](https://compose-spec.io/) to define deployment configurations. Create a `compose.yaml` file in your application directory:
+Uncloud uses the [Compose Specification](https://compose-spec.io/) to define deployment configurations. Create a `compose.yaml` file the application directory:
 
-```yaml
+```yaml [~/app/compose.yaml]
 services:
   web:
     # Build the image from the current directory
@@ -184,26 +209,16 @@ services:
     # Expose the application on a public URL
     # Replace 'app.example.com' with your actual domain
     x-ports:
-      - app.example.com:8000/https
-
-    # Set environment variables
-    environment:
-      DJANGO_SETTINGS_MODULE: issuetracker.settings
-      PYTHONUNBUFFERED: 1
-
-    # Restart policy
-    restart: unless-stopped
+      - issue-tracker.internal:8000/http
 ```
 
 Let's break down what this configuration does:
 
 - **`build: .`** - Tells Uncloud to build a container image from the Dockerfile in the current directory
-- **`x-ports`** - Uncloud-specific extension that configures ingress routing. This publishes your application on the specified domain with HTTPS
-- **`environment`** - Sets environment variables inside the container
-- **`restart: unless-stopped`** - Ensures the container automatically restarts if it crashes
+- **`x-ports`** - Uncloud-specific extension that configures ingress routing. This makes your application reachable via the specified domain (`issue-tracker.internal`); `:8000` indicates that inside the container the Django application listens on port 8000.
 
 ::remark-box
-**About the domain configuration**: In a real-world scenario, you would replace `app.example.com` with your actual domain name. For this tutorial environment in iximiuz Labs, we'll use `issue-tracker.internal` as configured in the playground settings, which will be accessible via the :tab{text='Application' name='Application'} tab.
+**About the domain configuration**: In a real-world scenario, you would replace `issue-tracker.internal` with your actual domain name. For this tutorial environment in iximiuz Labs, we'll use `issue-tracker.internal` as it's also configured in the playground settings, which will make the app accessible via the :tab{text='Application' name='Application'} tab.
 ::
 
 ### Building and Deploying with `uc deploy`
@@ -214,14 +229,6 @@ Now for the exciting part - deploying your application! Navigate to your applica
 cd ~/app
 uc deploy
 ```
-
-This single command will:
-
-1. **Build the image** - Uses your local Docker to build the image from the Dockerfile
-2. **Tag the image** - Automatically tags it with a Git-based version (or timestamp if not a Git repo)
-3. **Push to cluster** - Transfers the image directly to your cluster machines using [unregistry](https://github.com/psviderski/unregistry), efficiently sending only the layers that don't already exist
-4. **Plan deployment** - Shows you what will change and asks for confirmation
-5. **Deploy containers** - Creates and starts containers using zero-downtime rolling updates
 
 You'll see output similar to:
 
@@ -246,12 +253,12 @@ Deploying services...
 
 ### Understanding the Deployment Process
 
-What just happened under the hood?
+What happened under the hood when you ran `uc deploy`? That single command did the following:
 
-1. **Local Build**: Docker built your image using the Dockerfile, creating layers for each instruction
-2. **Direct Push**: Instead of pushing to an external registry (like Docker Hub), Uncloud pushed the image directly to your cluster machines
-3. **No Registry Required**: This is a key feature of Uncloud - you don't need to set up or pay for a container registry
-4. **Layer Optimization**: Only the layers that don't exist on the target machines were transferred, making subsequent deployments much faster
+1. **Built and tagged the image** - Your local Docker daemon built the image from the Dockerfile and tagged it with a unique timestamp-based tag
+2. **Pushed the image to the cluster** - Uncloud transferred the image directly to your cluster machines using the [unregistry](https://github.com/psviderski/unregistry) helper, without needing an external registry like Docker Hub. Only the layers that don't already exist on the target machines are transferred, making subsequent deployments much faster
+3. **Prepared a new deployment** - Uncloud printed the list of changes and asked for confirmation
+4. **Started a new container** - Uncloud created and started the application container
 
 <!-- prettier-ignore-start -->
 ::image-box
@@ -281,13 +288,17 @@ caddy   global       2          caddy:2.10.2
 web     replicated   1          django-app:...          http://issue-tracker.internal → :8000
 ```
 
+::remark-box
+💡 [`uc ls`](https://uncloud.run/docs/cli-reference/uc_ls) is a shortcut for the [`uc service ls`](https://uncloud.run/docs/cli-reference/uc_service_ls) command. Check all [`uc service`](https://uncloud.run/docs/cli-reference/uc_service) commands for available service operations.
+::
+
 For more detailed information about the service:
 
 ```sh
 uc inspect web
 ```
 
-You should see output showing the container details:
+The output will show you the container details:
 
 ```
 Service ID: a1b2c3d4e5f6
@@ -302,12 +313,6 @@ To view the logs from your Django application:
 ```sh
 uc logs web
 ```
-
-::remark-box
-💡 [`uc ls`](https://uncloud.run/docs/cli-reference/uc_ls) is a shortcut for the [`uc service ls`](https://uncloud.run/docs/cli-reference/uc_service_ls) command. Check all [`uc service`](https://uncloud.run/docs/cli-reference/uc_service) commands for available service operations.
-::
-
----
 
 ## Accessing Your Application
 
@@ -355,7 +360,7 @@ No need to manually configure reverse proxies, SSL certificates, or load balance
 
 ## Making Updates
 
-One of the powerful features of Uncloud is how easy it is to deploy updates. Let's say you made changes to your application code. Simply run:
+One of the powerful features of Uncloud is how easy it is to deploy updates. Let's say you made changes to your application code. Simply run the deploy command again:
 
 ```sh
 uc deploy
@@ -364,11 +369,11 @@ uc deploy
 Uncloud will:
 
 1. Detect the changes
-2. Rebuild the image (with layer caching for speed)
+2. Rebuild the image if necessary (with layer caching for speed)
 3. Push only the changed layers
 4. Perform a zero-downtime rolling update
 
-Your new version will be deployed without any service interruption!
+Your new version will be deployed without any service interruption.
 
 ### Deploying Configuration Changes Only
 
@@ -386,7 +391,7 @@ This skips the build step and only updates the service configuration.
 kind: warning
 ---
 
-⚠️ **Image Tag Considerations**: When using dynamic image tags based on Git state (which is the default), deploying with `--no-build` may fail if the tag has changed. See [Deploy configuration changes only](https://uncloud.run/docs/guides/deployments/deploy-app/#deploy-configuration-changes-only) in the official docs for best practices.
+⚠️ **Image Tag Considerations**: When using dynamic image tags based on Git state (which is the default when your project is part of a git repository), deploying with `--no-build` may fail if the tag has changed. See [Deploy configuration changes only](https://uncloud.run/docs/guides/deployments/deploy-app/#deploy-configuration-changes-only) in the official docs for best practices.
 ::
 <!-- prettier-ignore-end -->
 
