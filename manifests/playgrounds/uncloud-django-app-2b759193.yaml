@@ -79,7 +79,7 @@ playground:
       machine: server-1
       number: 80
       access: public
-      hostRewrite: tracker.internal
+      hostRewrite: issue-tracker.internal
   initTasks:
     add_machines:
       name: add_machines
