@@ -39,7 +39,7 @@ Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tu
 
 Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen of different tools and cloud services?
 
-In this hands-on tutorial, you'll learn how to deploy a Django web application fast and easy from source code to a remote Linux server using Uncloud.
+In this hands-on tutorial, you'll learn how to deploy a Django web application quickly and easily from source code to a remote Linux server using Uncloud.
 
 ::remark-box
 💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress — all without the complexity of Kubernetes.
@@ -98,7 +98,7 @@ You should see a typical Django project structure:
 ```
 .
 ├── README.md
-├── Dockerfile          # FIXME
+├── Dockerfile          # Container image definition
 ├── issuetracker        # Main project directory with core settings and routing configuration
 │   ├── __init__.py
 │   ├── asgi.py
@@ -163,7 +163,7 @@ CMD ["sh", "-c", "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --wor
 ```
 
 ::remark-box
-📝 **Dependency management**: We're using "plain" `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mostly to not shift away the focus from Uncloud-related concepts. For modern alternatives we recommended to look at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
+📝 **Dependency management**: We're using plain `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mostly to not shift away the focus from Uncloud-related concepts. For modern alternatives, we recommend looking at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
 ::
 
 ### Testing the Docker Build
@@ -198,7 +198,7 @@ Now that we confirmed that our Dockerfile is capable of creating an image for ou
 
 ### Creating a Compose File
 
-Uncloud uses the [Compose Specification](https://compose-spec.io/) to define deployment configurations. Create a `compose.yaml` file the application directory:
+Uncloud uses the [Compose Specification](https://compose-spec.io/) to define deployment configurations. Create a `compose.yaml` file in the application directory:
 
 ```yaml [~/app/compose.yaml]
 services:
@@ -207,7 +207,6 @@ services:
     build: .
 
     # Expose the application on a public URL
-    # Replace 'app.example.com' with your actual domain
     x-ports:
       - issue-tracker.internal:8000/http
 ```
@@ -308,12 +307,6 @@ CONTAINER ID   IMAGE            CREATED          STATUS                   IP ADD
 abc123def456   django-app:...   30 seconds ago   Up 30 seconds (healthy)  10.210.0.3   server-1
 ```
 
-To view the logs from your Django application:
-
-```sh
-uc logs web
-```
-
 ## Accessing Your Application
 
 ### In the iximiuz Labs Environment
@@ -395,7 +388,26 @@ kind: warning
 ::
 <!-- prettier-ignore-end -->
 
----
+## Checking Application Logs
+
+Great, now your application is running on the remote machine.
+
+To check the output of the application, you can use the [uc logs](https://uncloud.run/docs/cli-reference/uc_logs/) command:
+
+```sh
+uc logs web
+```
+
+## Troubleshooting using `uc exec`
+
+Sometimes it's necessary to jump inside a running container.
+
+Here's where the [uc exec]() command comes to the rescue. If you pass the service name to the command without any additional arguments, you will be dropped in the shell inside the running container:
+
+```sh
+$ uc exec web
+
+```
 
 ## Next Steps
 
