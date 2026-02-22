@@ -1,5 +1,5 @@
 services:
-  web:
+  issue-tracker:
     # Build the image from the current directory
     build: .
 

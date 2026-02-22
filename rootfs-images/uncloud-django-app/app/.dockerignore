@@ -12,3 +12,4 @@ main.py
 SPEC.md
 Dockerfile
 .dockerignore
+compose.yaml

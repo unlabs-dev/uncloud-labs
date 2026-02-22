@@ -202,7 +202,7 @@ Uncloud uses the [Compose Specification](https://compose-spec.io/) to define dep
 
 ```yaml [~/app/compose.yaml]
 services:
-  web:
+  issue-tracker:
     # Build the image from the current directory
     build: .
 
@@ -232,18 +232,26 @@ uc deploy
 You'll see output similar to:
 
 ```
-Building service 'web'...
+Building service 'issue-tracker'...
+
 [+] Building 45.2s (10/10) FINISHED
-Pushing image to cluster machines...
-Planning deployment...
 
-Changes:
-  + Create service 'web' with 1 replica
+[+] Building 1/1
+ ✔ app/issue-tracker:2026-02-22-215149  Built
 
-Proceed? [y/N]: y
+[+] Pushing image app/issue-tracker:2026-02-22-215149 to cluster
 
-Deploying services...
-✓ Service 'web' deployed successfully
+Deployment plan
+- Deploy service [name=issue-tracker]
+  - server-1: Run container [image=app/issue-tracker:2026-02-22-215149]
+
+Do you want to continue?
+
+Choose [y/N]: y
+Chose: Yes!
+
+[+] Deploying services 1/1
+ ✔ Container issue-tracker-n8nl on server-1  Started
 ```
 
 ::remark-box
@@ -282,9 +290,9 @@ uc ls
 You should see output similar to:
 
 ```
-NAME    MODE         REPLICAS   IMAGE                   ENDPOINTS
-caddy   global       2          caddy:2.10.2
-web     replicated   1          django-app:...          http://issue-tracker.internal → :8000
+NAME            MODE         REPLICAS   IMAGE                                 ENDPOINTS
+caddy           global       2          caddy:2.10.2
+issue-tracker   replicated   1          app/issue-tracker:2026-02-22-215149   http://issue-tracker.internal → :8000
 ```
 
 ::remark-box
@@ -294,17 +302,18 @@ web     replicated   1          django-app:...          http://issue-tracker.int
 For more detailed information about the service:
 
 ```sh
-uc inspect web
+uc inspect issue-tracker
 ```
 
 The output will show you the container details:
 
 ```
-Service ID: a1b2c3d4e5f6
-Name:       web
+Service ID: 3f11c85f774a9d07e16e90d209c1ddf0
+Name:       issue-tracker
 Mode:       replicated
-CONTAINER ID   IMAGE            CREATED          STATUS                   IP ADDRESS   MACHINE
-abc123def456   django-app:...   30 seconds ago   Up 30 seconds (healthy)  10.210.0.3   server-1
+
+CONTAINER ID   IMAGE                                 CREATED         STATUS         IP ADDRESS   MACHINE
+6b32aa328c13   app/issue-tracker:2026-02-22-215149   5 minutes ago   Up 5 minutes   10.210.0.3   server-1
 ```
 
 ## Accessing Your Application
@@ -390,23 +399,61 @@ kind: warning
 
 ## Checking Application Logs
 
-Great, now your application is running on the remote machine.
-
-To check the output of the application, you can use the [uc logs](https://uncloud.run/docs/cli-reference/uc_logs/) command:
+Great, now your application is running on the remote machine. At some point you'll want to peek at what it's actually doing — whether that's verifying a successful startup, investigating an error, or just checking request activity. To check the output of the deployed application, you can use the [uc logs](https://uncloud.run/docs/cli-reference/uc_logs/) command:
 
 ```sh
-uc logs web
+uc logs issue-tracker
+```
+
+You will get the output produced by the app:
+
+```
+Feb 22 21:51:59.434 server-1 issue-tracker[6b32a] Operations to perform:
+Feb 22 21:51:59.434 server-1 issue-tracker[6b32a]   Apply all migrations: admin, auth, contenttypes, issues, sessions
+Feb 22 21:51:59.434 server-1 issue-tracker[6b32a] Running migrations:
+Feb 22 21:51:59.438 server-1 issue-tracker[6b32a]   Applying contenttypes.0001_initial... OK
+Feb 22 21:51:59.451 server-1 issue-tracker[6b32a]   Applying auth.0001_initial... OK
+Feb 22 21:51:59.459 server-1 issue-tracker[6b32a]   Applying admin.0001_initial... OK
+Feb 22 21:51:59.469 server-1 issue-tracker[6b32a]   Applying admin.0002_logentry_remove_auto_add... OK
+...
+Feb 22 21:51:59.629 server-1 issue-tracker[6b32a]   Applying sessions.0001_initial... OK
+Feb 22 21:51:59.821 server-1 issue-tracker[6b32a] [2026-02-22 21:51:59 +0000] [8] [INFO] Starting gunicorn 23.0.0
+Feb 22 21:51:59.821 server-1 issue-tracker[6b32a] [2026-02-22 21:51:59 +0000] [8] [INFO] Listening at: http://0.0.0.0:8000 (8)
+Feb 22 21:51:59.821 server-1 issue-tracker[6b32a] [2026-02-22 21:51:59 +0000] [8] [INFO] Using worker: sync
+Feb 22 21:51:59.823 server-1 issue-tracker[6b32a] [2026-02-22 21:51:59 +0000] [9] [INFO] Booting worker with pid: 9
+Feb 22 21:51:59.840 server-1 issue-tracker[6b32a] [2026-02-22 21:51:59 +0000] [10] [INFO] Booting worker with pid: 10
+```
+
+`uc logs` is a powerful command that can accept a handful of arguments to control the filtering and time limits, for example:
+
+```sh
+# Show the last 3 hours of logs for service "caddy" from machine "server-1" and continually stream the new logs
+uc logs --machine server-1 --since 3h --follow caddy
 ```
 
 ## Troubleshooting using `uc exec`
 
 Sometimes it's necessary to jump inside a running container.
 
-Here's where the [uc exec]() command comes to the rescue. If you pass the service name to the command without any additional arguments, you will be dropped in the shell inside the running container:
+Here's where the [uc exec](https://uncloud.run/docs/cli-reference/uc_exec) command comes to the rescue. If you pass the service name to the command without any additional arguments, you will be dropped in the shell inside the running container:
 
-```sh
-$ uc exec web
+```text
+laborant@dev-machine:~$ uc exec issue-tracker
+root@issue-tracker-n8nl:/app# ls
+issues  issuetracker  manage.py  requirements.txt  staticfiles
+root@issue-tracker-n8nl:/app#
+```
 
+You can also pass the commands as arguments to `uc exec` to run them directly:
+
+```text
+laborant@dev-machine:~$ uc exec issue-tracker ps -ef
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 21:51 ?        00:00:00 sh -c python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
+root           8       1  0 21:51 ?        00:00:00 /usr/local/bin/python3.14 /usr/local/bin/gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
+root           9       8  0 21:51 ?        00:00:00 /usr/local/bin/python3.14 /usr/local/bin/gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
+root          10       8  0 21:51 ?        00:00:00 /usr/local/bin/python3.14 /usr/local/bin/gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
+root         273       0 50 22:22 pts/0    00:00:00 ps -ef
 ```
 
 ## Next Steps
@@ -416,7 +463,7 @@ Congratulations! You've successfully deployed a Django application to Uncloud. H
 1. **Add a Database Service**: Extend your `compose.yaml` to include a PostgreSQL database service instead of SQLite
 2. **Environment Variables**: Use environment variables for sensitive configuration like database passwords
 3. **Multiple Services**: Deploy additional services like Redis for caching or Celery for background tasks
-4. **Scale Your Service**: Try scaling your web service to multiple replicas with [`uc scale`](https://uncloud.run/docs/cli-reference/uc_scale): `uc scale web 2`
+4. **Scale Your Service**: Try scaling your service to multiple replicas with [`uc scale`](https://uncloud.run/docs/cli-reference/uc_scale): `uc scale issue-tracker 2`
 
 ### Additional Resources
 

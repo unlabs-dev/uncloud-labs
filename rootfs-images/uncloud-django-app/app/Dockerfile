@@ -4,6 +4,12 @@ FROM python:3.14-slim
 # Set up the working directory
 WORKDIR /app
 
+# Install helper system utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    sqlite3 \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
