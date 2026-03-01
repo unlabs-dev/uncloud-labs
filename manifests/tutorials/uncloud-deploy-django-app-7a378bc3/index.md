@@ -279,6 +279,8 @@ _Visual representation of the `uc deploy` workflow._
 ::
 <!-- prettier-ignore-end -->
 
+FIXME: do we need an image here? How would it help to understnd the material better?
+
 ### Verifying the Deployment
 
 Check that your service is running:
@@ -332,11 +334,11 @@ You should see the Django issue tracker homepage! Try creating a new issue to ve
 :max-width: 800px
 ---
 
-_The deployed Django issue tracker application._
+TODO: _The deployed Django issue tracker application._
 ::
 <!-- prettier-ignore-end -->
 
-You can also reach the service from the :tab{text='dev-machine' machine='dev-machine'} terminal. In that case, make sure to specify the correct "Host" header:
+You can also reach the service from the :tab{text='dev-machine' machine='dev-machine'} terminal using tools like `curl`. In that case, make sure to specify the correct "Host" header:
 
 ```sh
 # You can target ANY server of the cluster (server-1 or server-2)
@@ -352,7 +354,7 @@ In a production environment with Uncloud:
 3. **HTTPS by Default**: Your application would be immediately accessible via HTTPS at the domain you specified in the `x-ports` configuration
 4. **Ingress Management**: Uncloud handles all the ingress routing, SSL termination, and load balancing for you
 
-No need to manually configure reverse proxies, SSL certificates, or load balancers!
+No need to manually configure reverse proxies, SSL certificates, or load balancers.
 
 ::remark-box
 📚 **Learn More**: For detailed information about publishing services to the internet with custom domains and automatic TLS, check out the [Publishing Services](https://uncloud.run/docs/concepts/ingress/publishing-services) documentation.
@@ -371,8 +373,8 @@ uc deploy
 Uncloud will:
 
 1. Detect the changes
-2. Rebuild the image if necessary (with layer caching for speed)
-3. Push only the changed layers
+2. Rebuild the container image if necessary
+3. Push only the changed layers to the cluster
 4. Perform a zero-downtime rolling update
 
 Your new version will be deployed without any service interruption.
@@ -433,7 +435,7 @@ uc logs --machine server-1 --since 3h --follow caddy
 
 ## Troubleshooting using `uc exec`
 
-Sometimes it's necessary to jump inside a running container.
+Sometimes it's necessary to jump inside a running container (FIXME: why?).
 
 Here's where the [uc exec](https://uncloud.run/docs/cli-reference/uc_exec) command comes to the rescue. If you pass the service name to the command without any additional arguments, you will be dropped in the shell inside the running container:
 
