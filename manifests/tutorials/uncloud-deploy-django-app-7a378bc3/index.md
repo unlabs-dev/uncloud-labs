@@ -123,7 +123,7 @@ Check the [Django documentation](https://docs.djangoproject.com/en/) if you want
 
 ### Data management
 
-A traditionally interesting question for every application that maintains some kind of state would be: how and where are we storing the data? In the initial implementation we'll be using a [SQLite](https://sqlite.org/) database as the main data storage. A SQLite database is in essence a single file and doesn't require a running process; our Django application will be working with that file directly since Django has a built-in support for SQLite database files.
+A traditionally interesting question for every application that maintains some kind of state would be: how and where are we storing the data? In the initial implementation we'll be using a [SQLite](https://sqlite.org/) database as the main data storage. A SQLite database is in essence a single file and doesn't require a running process; our Django application will be working with that file directly since Django has a built-in support for SQLite database files. We'll also make sure that the database file is stored in a special way so that the data is not lost when the application restarts.
 
 ### Dockerizing the Application
 
@@ -223,7 +223,7 @@ Let's break down what this configuration does:
 
 - **`build: .`** - Tells Uncloud to build a container image from the Dockerfile in the current directory
 - **`x-ports`** - Uncloud-specific extension that configures ingress routing. This makes your application reachable via the specified domain (`issue-tracker.internal`); `:8000` indicates that inside the container the Django application listens on port 8000.
-- **`volumes`** - Defines a named volume `db_data` that is mounted to the `/data` directory inside the container. This allows the SQLite database file to persist across container restarts and deployments.
+- **`volumes`** - Defines a [named volume](https://uncloud.run/docs/cli-reference/uc_volume) `db_data` that is mounted to the `/data` directory inside the container. This allows the SQLite database file to persist across container restarts and deployments.
 
 ::remark-box
 **About the domain configuration**: In a real-world scenario, you would replace `issue-tracker.internal` with your actual domain name. For this tutorial environment in iximiuz Labs, we'll use `issue-tracker.internal` as it's also configured in the playground settings, which will make the app accessible via the :tab{text='Application' name='Application'} tab.
@@ -263,7 +263,7 @@ Chose: Yes!
  ✔ Container issue-tracker-n8nl on server-1  Started
 ```
 
-If you selected "y" when prompted, Uncloud proceeded with the deployment and started your application container. Congratulations, your Django application is now running on the Uncloud cluster!
+If you selected "y" when prompted, Uncloud proceeded with the deployment and started your application container. Congratulations, your Django application is now running on the Uncloud cluster 🎉
 
 ::remark-box
 💡 [`uc deploy`](https://uncloud.run/docs/cli-reference/uc_deploy) is a powerful command that handles the entire deployment workflow. Check out the [CLI reference](https://uncloud.run/docs/cli-reference/uc_deploy) for all available options and flags.
