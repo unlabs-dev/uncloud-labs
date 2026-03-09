@@ -82,8 +82,6 @@ In this tutorial, you have access to the following machines:
 
 The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. This is a sample issue tracking application built with Django that we'll be using as an example.
 
-The application uses SQLite database as the main data storage.
-
 ### Understanding the Application Structure
 
 Let's take a look at the application structure:
@@ -123,11 +121,13 @@ You should see a typical Django project structure:
 
 Check the [Django documentation](https://docs.djangoproject.com/en/) if you want to dig deeper on the format and purpose of each component.
 
+### Data management
+
+A traditionally interesting question for every application that maintains some kind of state would be: how and where are we storing the data? In the initial implementation we'll be using a [SQLite](https://sqlite.org/) database as the main data storage. A SQLite database is in essence a single file and doesn't require a running process; our Django application will be working with that file directly since Django has a built-in support for SQLite database files.
+
 ### Dockerizing the Application
 
-To deploy this application with Uncloud, we need to containerize it first. There is already an existing `Dockerfile` file at `~/app/Dockerfile` that defines how to build a container image for our application.
-
-Let's have a look at it:
+To deploy this application with Uncloud, we need to containerize it first. There is already an existing `Dockerfile` file at `~/app/Dockerfile` that defines how to build a container image for our application, let's have a look at it:
 
 ```dockerfile [~/app/Dockerfile]
 # Use Python 3.14 as the base image
@@ -198,7 +198,7 @@ Now that we confirmed that our Dockerfile is capable of creating an image for ou
 
 ### Creating a Compose File
 
-Uncloud uses the [Compose Specification](https://compose-spec.io/) to define deployment configurations. Create a `compose.yaml` file in the application directory:
+Uncloud uses the [Compose Specification](https://compose-spec.io/) to define deployment configurations. Let's have a look at the `compose.yaml` file in the application directory:
 
 ```yaml [~/app/compose.yaml]
 services:
@@ -209,12 +209,21 @@ services:
     # Expose the application on a public URL
     x-ports:
       - issue-tracker.internal:8000/http
+
+    # Mount a named volume for the database data
+    volumes:
+      - db_data:/data
+
+# Define a named volume for the database data
+volumes:
+  db_data:
 ```
 
 Let's break down what this configuration does:
 
 - **`build: .`** - Tells Uncloud to build a container image from the Dockerfile in the current directory
 - **`x-ports`** - Uncloud-specific extension that configures ingress routing. This makes your application reachable via the specified domain (`issue-tracker.internal`); `:8000` indicates that inside the container the Django application listens on port 8000.
+- **`volumes`** - Defines a named volume `db_data` that is mounted to the `/data` directory inside the container. This allows the SQLite database file to persist across container restarts and deployments.
 
 ::remark-box
 **About the domain configuration**: In a real-world scenario, you would replace `issue-tracker.internal` with your actual domain name. For this tutorial environment in iximiuz Labs, we'll use `issue-tracker.internal` as it's also configured in the playground settings, which will make the app accessible via the :tab{text='Application' name='Application'} tab.
@@ -254,6 +263,8 @@ Chose: Yes!
  ✔ Container issue-tracker-n8nl on server-1  Started
 ```
 
+If you selected "y" when prompted, Uncloud proceeded with the deployment and started your application container. Congratulations, your Django application is now running on the Uncloud cluster!
+
 ::remark-box
 💡 [`uc deploy`](https://uncloud.run/docs/cli-reference/uc_deploy) is a powerful command that handles the entire deployment workflow. Check out the [CLI reference](https://uncloud.run/docs/cli-reference/uc_deploy) for all available options and flags.
 ::
@@ -266,20 +277,7 @@ What happened under the hood when you ran `uc deploy`? That single command did t
 2. **Pushed the image to the cluster** - Uncloud transferred the image directly to your cluster machines using the [unregistry](https://github.com/psviderski/unregistry) helper, without needing an external registry like Docker Hub. Only the layers that don't already exist on the target machines are transferred, making subsequent deployments much faster
 3. **Prepared a new deployment** - Uncloud printed the list of changes and asked for confirmation
 4. **Started a new container** - Uncloud created and started the application container
-
-<!-- prettier-ignore-start -->
-::image-box
----
-:src: __static__/deployment-flow.png
-:alt: 'Uncloud Deployment Flow'
-:max-width: 800px
----
-
-_Visual representation of the `uc deploy` workflow._
-::
-<!-- prettier-ignore-end -->
-
-FIXME: do we need an image here? How would it help to understnd the material better?
+5. **Configured ingress** - Uncloud automatically set up the routing so that your application is accessible via the specified domain
 
 ### Verifying the Deployment
 
@@ -350,11 +348,8 @@ curl --header 'Host: issue-tracker.internal' server-1
 In a production environment with Uncloud:
 
 1. **Domain Configuration**: You would configure your domain's DNS to point to your Uncloud cluster
-2. **Automatic TLS**: Uncloud automatically provisions TLS certificates using Let's Encrypt for your configured domains
-3. **HTTPS by Default**: Your application would be immediately accessible via HTTPS at the domain you specified in the `x-ports` configuration
-4. **Ingress Management**: Uncloud handles all the ingress routing, SSL termination, and load balancing for you
-
-No need to manually configure reverse proxies, SSL certificates, or load balancers.
+2. **Automatic TLS certificates and HTTPS**: Uncloud automatically provisions TLS certificates using Let's Encrypt and makes your application immediately accessible via HTTPS at the domain you specified in the `x-ports` configuration
+3. **Ingress Management**: Uncloud handles all the ingress routing, TLS termination, and load balancing for you
 
 ::remark-box
 📚 **Learn More**: For detailed information about publishing services to the internet with custom domains and automatic TLS, check out the [Publishing Services](https://uncloud.run/docs/concepts/ingress/publishing-services) documentation.
@@ -460,10 +455,12 @@ root         273       0 50 22:22 pts/0    00:00:00 ps -ef
 
 ## Next Steps
 
-Congratulations! You've successfully deployed a Django application to Uncloud. Here are some things you can explore next:
+Congratulations! You've successfully deployed a Django application to Uncloud, made it accessible to the outside world, checked the logs, and even executed commands inside the running container. You've got a solid foundation to build upon.
+
+Here are some things you can explore next:
 
 1. **Add a Database Service**: Extend your `compose.yaml` to include a PostgreSQL database service instead of SQLite
-2. **Environment Variables**: Use environment variables for sensitive configuration like database passwords
+2. **Environment Variables**: Use environment variables for sensitive configuration like database passwords or API keys
 3. **Multiple Services**: Deploy additional services like Redis for caching or Celery for background tasks
 4. **Scale Your Service**: Try scaling your service to multiple replicas with [`uc scale`](https://uncloud.run/docs/cli-reference/uc_scale): `uc scale issue-tracker 2`
 

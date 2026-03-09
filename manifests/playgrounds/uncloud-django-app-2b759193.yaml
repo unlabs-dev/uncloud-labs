@@ -2,137 +2,139 @@ kind: playground
 name: uncloud-django-app-2b759193
 base: flexbox
 title: Uncloud Cluster with Django App
-description: FIXME
+description: |-
+    A playground with an initialized Uncloud cluster of 2 nodes and a Python Django application ready to be deployed on it.
+    About Uncloud: https://github.com/psviderski/uncloud
 categories:
-  - linux
-  - containers
-  - programming
+    - linux
+    - containers
+    - programming
 playground:
-  networks:
-    - name: local
-      subnet: 172.16.0.0/24
-  machines:
-    - name: dev-machine
-      users:
-        - name: root
-        - name: laborant
-          default: true
-          welcome: "Welcome to the Uncloud playground \U0001F64C\n\nYou’re currently on a control node of an initialized Uncloud cluster with 2 server nodes (server-1 and server-2).\n\nIn the app/ directory you can find the source code of a Python web application implemented with the Django framework. With Uncloud you can deploy this application directly to the machines in your Uncloud cluster, without the need for external components like container registries. Follow the linked tutorial to learn how!\n\n---\nAbout Uncloud: https://github.com/psviderski/uncloud/  \nDocumentation: https://uncloud.run/docs/"
-      drives:
-        - source: oci://ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-django-app
-          mount: /
-          size: 10GIB
-      network:
-        interfaces:
-          - network: local
-      resources:
-        cpuCount: 1
-        ramSize: 1GiB
-    - name: server-1
-      users:
-        - name: root
-        - name: laborant
-          default: true
-          welcome: "This is a server managed by Uncloud \U0001F680\n\nIt's recommended to use `uc` command-line client from the `dev-machine` instance to\ninspect and manage workloads on this machine, but you can of course directly experiment\nwith this system as well.  \n\n---\nAbout Uncloud: https://github.com/psviderski/uncloud/\nDocumentation: https://uncloud.run/docs/"
-      drives:
-        - source: oci://ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-server
-          mount: /
-          size: 10GIB
-      network:
-        interfaces:
-          - network: local
-      resources:
-        cpuCount: 1
-        ramSize: 2GiB
-    - name: server-2
-      users:
-        - name: root
-        - name: laborant
-          default: true
-          welcome: "This is a server managed by Uncloud \U0001F680\n\nIt's recommended to use `uc` command-line client from the `dev-machine` instance to\ninspect and manage workloads on this machine, but you can of course directly experiment\nwith this system as well.  \n\n---\nAbout Uncloud: https://github.com/psviderski/uncloud/\nDocumentation: https://uncloud.run/docs/"
-      drives:
-        - source: oci://ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-server
-          mount: /
-          size: 10GIB
-      network:
-        interfaces:
-          - network: local
-      resources:
-        cpuCount: 1
-        ramSize: 2GiB
-  tabs:
-    - id: terminal-dev-machine
-      kind: terminal
-      name: dev-machine
-      machine: dev-machine
-    - id: terminal-server-1
-      kind: terminal
-      name: server-1
-      machine: server-1
-    - id: terminal-server-2
-      kind: terminal
-      name: server-2
-      machine: server-2
-    - id: http-port-0bk8ltuf7a7q
-      kind: http-port
-      name: Application
-      machine: server-1
-      number: 80
-      access: public
-      hostRewrite: issue-tracker.internal
-  initTasks:
-    add_machines:
-      name: add_machines
-      machine: dev-machine
-      init: true
-      user: laborant
-      timeout_seconds: 300
-      run: |-
-        set -x
+    networks:
+        - name: local
+          subnet: 172.16.0.0/24
+    machines:
+        - name: dev-machine
+          users:
+            - name: root
+            - name: laborant
+              default: true
+              welcome: "Welcome to the Uncloud playground \U0001F64C\n\nYou’re currently on a control node of an initialized Uncloud cluster with 2 server nodes (server-1 and server-2).\n\nIn the app/ directory you can find the source code of a Python web application implemented with the Django framework. With Uncloud you can deploy this application directly to the machines in your Uncloud cluster, without the need for external components like container registries. Follow the linked tutorial to learn how!\n\n---\nAbout Uncloud: https://github.com/psviderski/uncloud/  \nDocumentation: https://uncloud.run/docs/"
+          drives:
+            - source: oci://ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-django-app
+              mount: /
+              size: 10GIB
+          network:
+            interfaces:
+                - network: local
+          resources:
+            cpuCount: 1
+            ramSize: 1GiB
+        - name: server-1
+          users:
+            - name: root
+            - name: laborant
+              default: true
+              welcome: "This is a server managed by Uncloud \U0001F680\n\nIt's recommended to use `uc` command-line client from the `dev-machine` instance to\ninspect and manage workloads on this machine, but you can of course directly experiment\nwith this system as well.  \n\n---\nAbout Uncloud: https://github.com/psviderski/uncloud/\nDocumentation: https://uncloud.run/docs/"
+          drives:
+            - source: oci://ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-server
+              mount: /
+              size: 10GIB
+          network:
+            interfaces:
+                - network: local
+          resources:
+            cpuCount: 1
+            ramSize: 2GiB
+        - name: server-2
+          users:
+            - name: root
+            - name: laborant
+              default: true
+              welcome: "This is a server managed by Uncloud \U0001F680\n\nIt's recommended to use `uc` command-line client from the `dev-machine` instance to\ninspect and manage workloads on this machine, but you can of course directly experiment\nwith this system as well.  \n\n---\nAbout Uncloud: https://github.com/psviderski/uncloud/\nDocumentation: https://uncloud.run/docs/"
+          drives:
+            - source: oci://ghcr.io/tonyo/uncloud-playgrounds/rootfs:uncloud-server
+              mount: /
+              size: 10GIB
+          network:
+            interfaces:
+                - network: local
+          resources:
+            cpuCount: 1
+            ramSize: 2GiB
+    tabs:
+        - id: terminal-dev-machine
+          kind: terminal
+          name: dev-machine
+          machine: dev-machine
+        - id: terminal-server-1
+          kind: terminal
+          name: server-1
+          machine: server-1
+        - id: terminal-server-2
+          kind: terminal
+          name: server-2
+          machine: server-2
+        - id: http-port-0bk8ltuf7a7q
+          kind: http-port
+          name: Application
+          machine: server-1
+          number: 80
+          access: public
+          hostRewrite: issue-tracker.internal
+    initTasks:
+        add_machines:
+            name: add_machines
+            machine: dev-machine
+            init: true
+            user: laborant
+            timeout_seconds: 300
+            run: |-
+                set -x
 
-        exec > /tmp/init-task-output.log 2>&1
+                exec > /tmp/init-task-output.log 2>&1
 
-        # Hosts to wait for
-        HOSTS=("server-1" "server-2")
+                # Hosts to wait for
+                HOSTS=("server-1" "server-2")
 
-        echo "Waiting for SSH availability on: ${HOSTS[*]}"
+                echo "Waiting for SSH availability on: ${HOSTS[*]}"
 
-        for HOST in "${HOSTS[@]}"; do
-          echo "Checking $HOST..."
-          until ssh -n -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$HOST" "echo connected" &>/dev/null; do
-            echo "$HOST not available yet... retrying in 3 seconds."
-            sleep 3
-          done
-          echo "$HOST is available!"
-        done
+                for HOST in "${HOSTS[@]}"; do
+                  echo "Checking $HOST..."
+                  until ssh -n -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$HOST" "echo connected" &>/dev/null; do
+                    echo "$HOST not available yet... retrying in 3 seconds."
+                    sleep 3
+                  done
+                  echo "$HOST is available!"
+                done
 
-        echo "All servers are reachable."
+                echo "All servers are reachable."
 
-        ### Init cluster
+                ### Init cluster
 
-        # Add first machine
-        uc machine init --no-dns -n server-1 laborant@server-1
+                # Add first machine
+                uc machine init --no-dns -n server-1 laborant@server-1
 
-        # Add second machine
-        uc machine add -n server-2 laborant@server-2
-    init_server_1_1:
-      name: init_server_1_1
-      machine: server-1
-      init: true
-      user: root
-      timeout_seconds: 300
-      run: docker pull caddy:latest
-    init_server_2_1:
-      name: init_server_2_1
-      machine: server-2
-      init: true
-      user: root
-      timeout_seconds: 300
-      run: docker pull caddy:latest
-  accessControl:
-    canList:
-      - owner
-    canRead:
-      - owner
-    canStart:
-      - owner
+                # Add second machine
+                uc machine add -n server-2 laborant@server-2
+        init_server_1_1:
+            name: init_server_1_1
+            machine: server-1
+            init: true
+            user: root
+            timeout_seconds: 300
+            run: docker pull caddy:latest
+        init_server_2_1:
+            name: init_server_2_1
+            machine: server-2
+            init: true
+            user: root
+            timeout_seconds: 300
+            run: docker pull caddy:latest
+    accessControl:
+        canList:
+            - owner
+        canRead:
+            - owner
+        canStart:
+            - owner

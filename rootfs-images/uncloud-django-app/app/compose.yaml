@@ -4,6 +4,13 @@ services:
     build: .
 
     # Expose the application on a public URL
-    # Replace 'app.example.com' with your actual domain
     x-ports:
       - issue-tracker.internal:8000/http
+
+    # Mount a named volume for the database data
+    volumes:
+      - db_data:/data
+
+# Define a named volume for the database data
+volumes:
+  db_data:
