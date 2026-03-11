@@ -22,6 +22,7 @@ jobs:
         image:
           - uncloud-devmachine
           - uncloud-server
+          - uncloud-django-app
 
     steps:
       - name: Checkout repository
