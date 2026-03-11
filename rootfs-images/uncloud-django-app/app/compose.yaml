@@ -1,0 +1,16 @@
+services:
+  issue-tracker:
+    # Build the image from the current directory
+    build: .
+
+    # Expose the application on a public URL
+    x-ports:
+      - issue-tracker.internal:8000/http
+
+    # Mount a named volume for the database data
+    volumes:
+      - db_data:/data
+
+# Define a named volume for the database data
+volumes:
+  db_data:

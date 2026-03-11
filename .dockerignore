@@ -1,3 +1,10 @@
 **
-!uncloud-*
+# Common exclusions
+!rootfs-images
 !scripts
+
+# Specific ignores
+rootfs-images/uncloud-django-app/app/.venv
+rootfs-images/uncloud-django-app/app/db.sqlite3
+rootfs-images/uncloud-django-app/app/**.pyc
+rootfs-images/uncloud-django-app/app/**/__pycache__

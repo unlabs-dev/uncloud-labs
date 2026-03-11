@@ -1,0 +1,54 @@
+{% extends 'issues/base.html' %}
+
+{% block title %}Issues - Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>All Issues</h2>
+    <div class="filters">
+        <span>Filter by status:</span>
+        <a href="{% url 'issue_list' %}" class="filter-link {% if not status_filter %}active{% endif %}">All</a>
+        <a href="?status=OPEN" class="filter-link {% if status_filter == 'OPEN' %}active{% endif %}">Open</a>
+        <a href="?status=IN_PROGRESS" class="filter-link {% if status_filter == 'IN_PROGRESS' %}active{% endif %}">In Progress</a>
+        <a href="?status=DONE" class="filter-link {% if status_filter == 'DONE' %}active{% endif %}">Done</a>
+    </div>
+</div>
+
+{% if issues %}
+<div class="issues-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for issue in issues %}
+            <tr onclick="window.location.href='{% url 'issue_detail' issue.pk %}'">
+                <td><strong>{{ issue.title }}</strong></td>
+                <td>
+                    <span class="badge badge-status-{{ issue.status|lower }}">
+                        {{ issue.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge badge-priority-{{ issue.priority }}">
+                        {{ issue.get_priority_display }}
+                    </span>
+                </td>
+                <td>{{ issue.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No issues found.</p>
+    <a href="{% url 'issue_create' %}" class="btn btn-primary">Create Your First Issue</a>
+</div>
+{% endif %}
+{% endblock %}

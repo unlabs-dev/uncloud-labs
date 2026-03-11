@@ -1,7 +1,8 @@
 ### Targets and structure inspired by https://github.com/iximiuz/labs-playgrounds/blob/main/Makefile
 
-IMAGE_REPO = ghcr.io/tonyo/uncloud-playgrounds/rootfs
+IMAGE_REPO = ghcr.io/tonyo/uncloud-labs/rootfs
 MANIFESTS_DIR = manifests
+DOCKER_BUILD_FLAGS ?=
 
 all:
 	exit 1
@@ -9,7 +10,8 @@ all:
 build-img-%:
 	docker build \
 		--progress plain \
-		-f ./$*/Dockerfile \
+		$(DOCKER_BUILD_FLAGS) \
+		-f ./rootfs-images/$*/Dockerfile \
 		-t $(IMAGE_REPO):$* \
 		.
 .PHONY: build-img-%
@@ -19,16 +21,16 @@ push-img-%: build-img-%
 .PHONY: push-img-%
 
 test-img-%: build-img-%
-	@test -f $*/test.sh || { echo "Error: $*/test.sh not found"; exit 1; }
-	docker run --rm $(IMAGE_REPO):$* bash -c "$$(cat $*/test.sh)"
+	@test -f rootfs-images/$*/test.sh || { echo "Error: rootfs-images/$*/test.sh not found"; exit 1; }
+	docker run --rm $(IMAGE_REPO):$* bash -c "$$(cat rootfs-images/$*/test.sh)"
 .PHONY: test-img-%
 
 ### Playgrounds
 
 PLAYGROUND_IDS = \
 	uncloud-cluster-64523f7c \
-	uncloud-uninitialized-cluster-cacb63ae
-
+	uncloud-uninitialized-cluster-cacb63ae \
+	uncloud-django-app-2b759193
 
 PLAYGROUND_DIR = $(MANIFESTS_DIR)/playgrounds
 
@@ -81,3 +83,17 @@ stream-tutorial:
 stream-tutorial/%:
 	labctl content push tutorial -f -w $* -d $(TUTORIALS_DIR)/$*/
 .PHONY: push-stream-tutorial/%
+
+IXIMIUZ_LABS_DIR = vendor/iximiuz-labs
+
+download-iximiuz-rules:
+	@mkdir -p $(IXIMIUZ_LABS_DIR)
+	@if [ -d "$(IXIMIUZ_LABS_DIR)/.git" ]; then \
+		echo ">>> Pulling latest changes from iximiuz/labs..."; \
+		cd $(IXIMIUZ_LABS_DIR) && git pull; \
+	else \
+		echo ">>> Cloning iximiuz/labs repository..."; \
+		git clone https://github.com/iximiuz/labs.git $(IXIMIUZ_LABS_DIR); \
+	fi
+	@echo ">>> Downloaded iximiuz/labs to $(IXIMIUZ_LABS_DIR)"
+.PHONY: download-iximiuz-rules
