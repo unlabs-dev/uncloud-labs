@@ -39,7 +39,7 @@ Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tu
 
 Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen of different tools and cloud services?
 
-In this hands-on tutorial, you'll learn how to deploy a Django web application quickly and easily from source code to a remote Linux server using Uncloud.
+In this hands-on tutorial, you'll learn how to deploy a Django web application quickly and easily from source code to a remote Linux server using **Uncloud**.
 
 ::remark-box
 💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress — all without the complexity of Kubernetes.
@@ -49,19 +49,20 @@ In this hands-on tutorial, you'll learn how to deploy a Django web application q
 
 Before starting this tutorial, you should have:
 
-- A basic understanding of [Docker](https://www.docker.com/) and containers. There are great tutorials and courses available on iximiuz Labs (the very same platform you're using now), for example check out the [Docker skill path](https://labs.iximiuz.com/skill-paths/docker-101-run-and-manage-containers) if you want to brush up on fundamentals.
-- Familiarity with [Python](https://www.python.org/) and the [Django](https://www.djangoproject.com/) web framework.
-- A basic understanding of Uncloud and how an Uncloud cluster functions. If you haven't completed the initial Uncloud tutorial ([How to Create an Uncloud Cluster](https://labs.iximiuz.com/tutorials/uncloud-create-cluster-ebebf72b)), we recommend you to start there.
+- A basic understanding of [Docker](https://www.docker.com/) and containers. There are great tutorials and courses available on **iximiuz Labs** (the very same platform you're using now), for example check out the [Docker skill path](https://labs.iximiuz.com/skill-paths/docker-101-run-and-manage-containers) if you want to brush up on fundamentals.
+- Some familiarity with [Python](https://www.python.org/) and the [Django](https://www.djangoproject.com/) web framework.
+- A basic understanding of Uncloud and how an Uncloud cluster functions. If you haven't completed the initial Uncloud tutorial ([How to Create an Uncloud Cluster](https://labs.iximiuz.com/tutorials/uncloud-create-cluster-ebebf72b)), we recommend starting there.
 
 **What You'll Learn**
 
 By the end of this tutorial, you'll be able to:
 
-1. Dockerize a Django application by creating a Dockerfile
+1. Dockerize a Django application using a Dockerfile
 2. Create a Compose file for deployment configuration
 3. Build and deploy your application using Uncloud
 4. Access your deployed application through the web browser
 5. Check the application logs
+6. Execute commands inside the running container for maintenance and troubleshooting
 
 Let's get started!
 
@@ -71,7 +72,7 @@ Let's get started!
 
 It is highly encouraged to take advantage of the interactive features of the [iximiuz Labs platform](https://labs.iximiuz.com/about) and follow the tutorial by executing the commands in the interactive environment.
 
-To get started, click the "Start Tutorial" button located under the table of contents on the left side of the screen (like, do it right now!). After a few seconds, you'll see a terminal on the right side of your screen.
+To get started, click the "Start Tutorial" button located under the table of contents on the left side of the screen (go ahead, do it now!). After a few seconds, you'll see a terminal on the right side of your screen.
 
 In this tutorial, you have access to the following machines:
 
@@ -80,7 +81,7 @@ In this tutorial, you have access to the following machines:
 
 ## Preparing Your Django Application
 
-The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. This is a sample issue tracking application built with Django that we'll be using as an example.
+The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. It is a sample issue tracking application built with Django that we'll be using as an example.
 
 ### Understanding the Application Structure
 
@@ -95,39 +96,40 @@ You should see a typical Django project structure:
 
 ```
 .
-├── README.md
 ├── Dockerfile          # Container image definition
+├── README.md           # Project documentation
+├── compose.yaml        # Uncloud/Compose deployment configuration
+├── issues              # Application directory with models, views, and templates
+│   ├── __init__.py     # Package marker
+│   ├── admin.py        # Django admin panel registration
+│   ├── apps.py         # Application configuration
+│   ├── forms.py        # Form definitions
+│   ├── migrations      # Database migration history
+│   ├── models.py       # Database models
+│   ├── static          # Static files (CSS, JS, images)
+│   ├── templates       # HTML templates
+│   ├── tests.py        # Automated tests
+│   ├── urls.py         # Application URL routing
+│   └── views.py        # View functions and classes
 ├── issuetracker        # Main project directory with core settings and routing configuration
-│   ├── __init__.py
-│   ├── asgi.py
+│   ├── __init__.py     # Package marker
+│   ├── asgi.py         # ASGI entry point for async servers
 │   ├── settings.py     # Project settings
-│   ├── urls.py
-│   └── wsgi.py
+│   ├── urls.py         # Root URL routing configuration
+│   └── wsgi.py         # WSGI entry point for production servers
 ├── manage.py           # Django management script
-├── requirements.txt    # File listing Python dependencies
-└── tracker             # Application directory with models, views, and templates
-    ├── __init__.py
-    ├── admin.py
-    ├── apps.py
-    ├── forms.py
-    ├── migrations
-    ├── models.py
-    ├── static
-    ├── templates
-    ├── tests.py
-    ├── urls.py
-    └── views.py
+└── requirements.txt    # File listing Python dependencies
 ```
 
 Check the [Django documentation](https://docs.djangoproject.com/en/) if you want to dig deeper on the format and purpose of each component.
 
-### Data management
+### Data Management
 
-A traditionally interesting question for every application that maintains some kind of state would be: how and where are we storing the data? In the initial implementation we'll be using a [SQLite](https://sqlite.org/) database as the main data storage. A SQLite database is in essence a single file and doesn't require a running process; our Django application will be working with that file directly since Django has a built-in support for SQLite database files. We'll also make sure that the database file is stored in a special way so that the data is not lost when the application restarts.
+A traditionally interesting question for every application that maintains some kind of state would be: how and where are we storing the data? In the initial implementation we'll be using a [SQLite](https://sqlite.org/) database as the main data storage. A SQLite database is in essence a single file and doesn't require a running process; our Django application will be working with that file directly since Django has built-in support for SQLite database files. We'll also make sure that the database file is stored on a persistent volume so that data survives container restarts.
 
 ### Dockerizing the Application
 
-To deploy this application with Uncloud, we need to containerize it first. There is already an existing `Dockerfile` file at `~/app/Dockerfile` that defines how to build a container image for our application, let's have a look at it:
+To deploy this application with Uncloud, we need to containerize it first. There is already a `Dockerfile` at `~/app/Dockerfile` that defines how to build a container image for our application, let's have a look at it:
 
 ```dockerfile [~/app/Dockerfile]
 # Use Python 3.14 as the base image
@@ -163,7 +165,7 @@ CMD ["sh", "-c", "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --wor
 ```
 
 ::remark-box
-📝 **Dependency management**: We're using plain `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mostly to not shift away the focus from Uncloud-related concepts. For modern alternatives, we recommend looking at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
+📝 **Dependency management**: We're using plain `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mainly to keep the focus on Uncloud-related concepts. For modern alternatives, we recommend looking at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
 ::
 
 ### Testing the Docker Build
@@ -194,7 +196,7 @@ issue-tracker:latest   96b10b1a9bfc        263MB         57.5MB
 
 ## Deploying to Uncloud Cluster
 
-Now that we confirmed that our Dockerfile is capable of creating an image for our app without any error, we now have everything we need to deploy the application using Uncloud.
+Now that we've confirmed the image builds successfully, we have everything we need to deploy the application using Uncloud.
 
 ### Creating a Compose File
 
@@ -263,7 +265,7 @@ Chose: Yes!
  ✔ Container issue-tracker-n8nl on server-1  Started
 ```
 
-If you selected "y" when prompted, Uncloud proceeded with the deployment and started your application container. Congratulations, your Django application is now running on the Uncloud cluster 🎉
+Congratulations, your Django application is now running on the Uncloud cluster 🎉
 
 ::remark-box
 💡 [`uc deploy`](https://uncloud.run/docs/cli-reference/uc_deploy) is a powerful command that handles the entire deployment workflow. Check out the [CLI reference](https://uncloud.run/docs/cli-reference/uc_deploy) for all available options and flags.
@@ -273,11 +275,11 @@ If you selected "y" when prompted, Uncloud proceeded with the deployment and sta
 
 What happened under the hood when you ran `uc deploy`? That single command did the following:
 
-1. **Built and tagged the image** - Your local Docker daemon built the image from the Dockerfile and tagged it with a unique timestamp-based tag
-2. **Pushed the image to the cluster** - Uncloud transferred the image directly to your cluster machines using the [unregistry](https://github.com/psviderski/unregistry) helper, without needing an external registry like Docker Hub. Only the layers that don't already exist on the target machines are transferred, making subsequent deployments much faster
-3. **Prepared a new deployment** - Uncloud printed the list of changes and asked for confirmation
-4. **Started a new container** - Uncloud created and started the application container
-5. **Configured ingress** - Uncloud automatically set up the routing so that your application is accessible via the specified domain
+1. **Built and tagged the image** - Your local Docker daemon built the image from the Dockerfile and tagged it with a unique timestamp-based tag. Note that Uncloud will take care of building the image for you, so you don't need to worry about manually building or tagging it before deployment every time.
+2. **Pushed the image to the cluster** - Uncloud transferred the image directly to your cluster machines using the [unregistry](https://github.com/psviderski/unregistry) helper, without needing an external registry like Docker Hub. Only the layers that don't already exist on the target machines are transferred, making subsequent deployments much faster.
+3. **Prepared a new deployment** - Uncloud printed the list of changes and asked for .
+4. **Started a new container** - Uncloud created and started the application container.
+5. **Configured ingress** - Uncloud automatically set up the routing so that your application is accessible via the specified domain.
 
 ### Verifying the Deployment
 
@@ -430,6 +432,8 @@ uc logs --machine server-1 --since 3h --follow caddy
 
 ## Troubleshooting using `uc exec`
 
+TODO: replace with "createuser"
+
 Sometimes it's necessary to jump inside a running container (FIXME: why?).
 
 Here's where the [uc exec](https://uncloud.run/docs/cli-reference/uc_exec) command comes to the rescue. If you pass the service name to the command without any additional arguments, you will be dropped in the shell inside the running container:
@@ -467,9 +471,8 @@ Here are some things you can explore next:
 ### Additional Resources
 
 - [Uncloud Documentation](https://uncloud.run/docs) - Complete guide to all Uncloud features
-- [Compose Specification](https://compose-spec.io/) - Learn about all available Compose file options
-- [Deploy to Specific Machines](https://uncloud.run/docs/guides/deployments/deploy-specific-machines) - Control where services are deployed
 - [Compose Support Matrix](https://uncloud.run/docs/compose-file-reference/support-matrix) - Supported Compose features in Uncloud
+- [Deploy to Specific Machines](https://uncloud.run/docs/guides/deployments/deploy-specific-machines) - Control where services are deployed
 
 Happy deploying! 🚀
 
