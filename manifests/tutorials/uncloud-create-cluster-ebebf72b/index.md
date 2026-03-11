@@ -127,7 +127,7 @@ One initialized server isn't really a cluster, right? A proper cluster typically
 Let's add a second machine (`server-2`) to the cluster. The command is quite similar — the main difference is that we use [`add`](https://uncloud.run/docs/cli-reference/uc_machine_add) instead of [`init`](https://uncloud.run/docs/cli-reference/uc_machine_init):
 
 ```sh
-uc machine add laborant@server-2
+uc machine add laborant@server-2 --yes
 ```
 
 Similar to `server-1`, `server-2` now has all the important components (Docker, Uncloud daemon, etc.) up and running. The two machines are automatically connected via a secure WireGuard mesh network, allowing containers to communicate across machines.
