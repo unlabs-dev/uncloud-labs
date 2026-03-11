@@ -2,6 +2,7 @@
 
 IMAGE_REPO = ghcr.io/tonyo/uncloud-labs/rootfs
 MANIFESTS_DIR = manifests
+DOCKER_BUILD_FLAGS ?=
 
 all:
 	exit 1
@@ -9,6 +10,7 @@ all:
 build-img-%:
 	docker build \
 		--progress plain \
+		$(DOCKER_BUILD_FLAGS) \
 		-f ./rootfs-images/$*/Dockerfile \
 		-t $(IMAGE_REPO):$* \
 		.
