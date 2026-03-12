@@ -118,7 +118,7 @@ playground:
                 uc machine init --no-dns -n server-1 laborant@server-1
 
                 # Add second machine
-                uc machine add -n server-2 laborant@server-2
+                uc machine add -n server-2 laborant@server-2 --yes
         init_server_1_1:
             name: init_server_1_1
             machine: server-1

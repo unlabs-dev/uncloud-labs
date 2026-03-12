@@ -16,7 +16,7 @@ tagz:
 createdAt: 2026-01-11
 updatedAt: 2026-01-11
 
-cover: __static__/cover.png
+cover: __static__/django-plus-uc.png
 
 playground:
   name: uncloud-django-app-2b759193
@@ -36,6 +36,17 @@ Docs: [How to Author Tutorials on iximiuz Labs](https://labs.iximiuz.com/tutoria
 
 Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tutorial/index.md?plain=1
 -->
+
+<!-- prettier-ignore-start -->
+::image-box
+---
+:src: __static__/django-plus-uc.png
+:alt: 'Django and Uncloud'
+:max-width: 600px
+---
+
+::
+<!-- prettier-ignore-end -->
 
 Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen of different tools and cloud services?
 
@@ -324,17 +335,16 @@ CONTAINER ID   IMAGE                                 CREATED         STATUS     
 
 In this tutorial environment, you can access your deployed application using the built-in browser. Click on the :tab{text='Application' name='Application'} tab at the top of your screen.
 
-You should see the Django issue tracker homepage! Try creating a new issue to verify everything is working correctly.
+You should see the Django issue tracker homepage with a couple pre-created issues. Try creating a new issue to verify everything is working correctly.
 
 <!-- prettier-ignore-start -->
 ::image-box
 ---
-:src: __static__/django-app-running.png
+:src: __static__/tracker-ready.png
 :alt: 'Running Django Application'
 :max-width: 800px
 ---
 
-TODO: _The deployed Django issue tracker application._
 ::
 <!-- prettier-ignore-end -->
 
