@@ -14,17 +14,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create data directory for database
-RUN mkdir -p /data
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Create data directory for database and set ownership
+RUN mkdir -p /data && chown appuser:appuser /data
 
 # Set environment variable for database path
 ENV DATABASE_PATH=/data/db.sqlite3
 
 # Copy application code
-COPY . .
+COPY --chown=appuser:appuser . .
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
+
+# Switch to non-root user
+USER appuser
 
 # Expose application port
 EXPOSE 8000

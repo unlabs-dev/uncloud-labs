@@ -37,6 +37,10 @@ Docs: [How to Author Tutorials on iximiuz Labs](https://labs.iximiuz.com/tutoria
 Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tutorial/index.md?plain=1
 -->
 
+## TL;DR
+
+Go to your application directory with the prepared `Dockerfile` and `compose.yaml` files, and run `uc deploy`. Voilà!
+
 <!-- prettier-ignore-start -->
 ::image-box
 ---
@@ -48,12 +52,12 @@ Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tu
 ::
 <!-- prettier-ignore-end -->
 
-Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen of different tools and cloud services?
+Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen different tools and cloud services?
 
 In this hands-on tutorial, you'll learn how to deploy a Django web application quickly and easily from source code to a remote Linux server using **Uncloud**.
 
 ::remark-box
-💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress — all without the complexity of Kubernetes.
+💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress - all without the complexity of Kubernetes.
 ::
 
 **Prerequisites**
@@ -136,7 +140,7 @@ Check the [Django documentation](https://docs.djangoproject.com/en/) if you want
 
 ### Data Management
 
-A traditionally interesting question for every application that maintains some kind of state would be: how and where are we storing the data? In the initial implementation we'll be using a [SQLite](https://sqlite.org/) database as the main data storage. A SQLite database is in essence a single file and doesn't require a running process; our Django application will be working with that file directly since Django has built-in support for SQLite database files. We'll also make sure that the database file is stored on a persistent volume so that data survives container restarts.
+A traditionally interesting question for every application that maintains some kind of state would be: how and where are we storing the data? In the initial implementation we'll be using a [SQLite](https://sqlite.org/) database as the main data storage. An SQLite database is in essence a single file and doesn't require a running process; our Django application will be working with that file directly since Django has built-in support for SQLite database files. We'll also make sure that the database file is stored on a persistent volume so that data survives container restarts.
 
 ### Dockerizing the Application
 
@@ -149,21 +153,33 @@ FROM python:3.14-slim
 # Set up the working directory
 WORKDIR /app
 
+# Install helper system utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    sqlite3 \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Create data directory for database
-RUN mkdir -p /data
+# Create a non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Create data directory for database and set ownership
+RUN mkdir -p /data && chown appuser:appuser /data
 
 # Set environment variable for database path
 ENV DATABASE_PATH=/data/db.sqlite3
 
 # Copy application code
-COPY . .
+COPY --chown=appuser:appuser . .
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
+
+# Switch to non-root user
+USER appuser
 
 # Expose application port
 EXPOSE 8000
@@ -191,12 +207,6 @@ docker build -t issue-tracker .
 You should see Docker building the image layer by layer.
 
 You can verify the image was created:
-
-```sh
-docker images
-```
-
-The output should look similar to this:
 
 ```
 laborant@dev-machine:app$ docker images
@@ -286,11 +296,11 @@ Congratulations, your Django application is now running on the Uncloud cluster �
 
 What happened under the hood when you ran `uc deploy`? That single command did the following:
 
-1. **Built and tagged the image** - Your local Docker daemon built the image from the Dockerfile and tagged it with a unique timestamp-based tag. Note that Uncloud will take care of building the image for you, so you don't need to worry about manually building or tagging it before deployment every time.
-2. **Pushed the image to the cluster** - Uncloud transferred the image directly to your cluster machines using the [unregistry](https://github.com/psviderski/unregistry) helper, without needing an external registry like Docker Hub. Only the layers that don't already exist on the target machines are transferred, making subsequent deployments much faster.
-3. **Prepared a new deployment** - Uncloud printed the list of changes and asked for .
-4. **Started a new container** - Uncloud created and started the application container.
-5. **Configured ingress** - Uncloud automatically set up the routing so that your application is accessible via the specified domain.
+1. **Built and tagged the image**: Your local Docker daemon built the image from the Dockerfile and tagged it with a unique timestamp-based tag. Note that Uncloud will take care of building the image for you, so you don't need to worry about manually building or tagging it before deployment every time.
+2. **Pushed the image to the cluster**: Uncloud transferred the image directly to your cluster machines using the [unregistry](https://github.com/psviderski/unregistry) helper, without needing an external registry like Docker Hub. Only the layers that don't already exist on the target machines are transferred, making subsequent deployments much faster.
+3. **Prepared a new deployment**: Uncloud printed the list of changes and asked for your confirmation.
+4. **Started a new container**: Uncloud created and started the application container.
+5. **Configured ingress**: Uncloud automatically set up the routing so that your application is accessible via the specified domain.
 
 ### Verifying the Deployment
 
@@ -408,7 +418,7 @@ kind: warning
 
 ## Checking Application Logs
 
-Great, now your application is running on the remote machine. At some point you'll want to peek at what it's actually doing — whether that's verifying a successful startup, investigating an error, or just checking request activity. To check the output of the deployed application, you can use the [uc logs](https://uncloud.run/docs/cli-reference/uc_logs/) command:
+Great, now your application is running on the remote machine. At some point you'll want to peek at what the application is writing to its output - whether that's verifying a successful startup, investigating an error, or just checking request activity. To check the output of the deployed application, you can use the [uc logs](https://uncloud.run/docs/cli-reference/uc_logs/) command:
 
 ```sh
 uc logs issue-tracker
@@ -440,36 +450,26 @@ Feb 22 21:51:59.840 server-1 issue-tracker[6b32a] [2026-02-22 21:51:59 +0000] [1
 uc logs --machine server-1 --since 3h --follow caddy
 ```
 
-## Troubleshooting using `uc exec`
+## Creating an Admin User with `uc exec`
 
-TODO: replace with "createuser"
+Our application is working, but we cannot log in to the Django admin panel yet because we haven't created an admin user. To create one, we need to run the [`createsuperuser`](https://docs.djangoproject.com/en/6.0/ref/django-admin/#createsuperuser) management command inside the running container. This is where [uc exec](https://uncloud.run/docs/cli-reference/uc_exec) comes to the rescue: it allows you to execute any command inside the running container on the remote machine, just like `docker exec` or `kubectl exec`, but for your Uncloud cluster.
 
-Sometimes it's necessary to jump inside a running container (FIXME: why?).
-
-Here's where the [uc exec](https://uncloud.run/docs/cli-reference/uc_exec) command comes to the rescue. If you pass the service name to the command without any additional arguments, you will be dropped in the shell inside the running container:
+Let's create a superuser with username "admin":
 
 ```text
-laborant@dev-machine:~$ uc exec issue-tracker
-root@issue-tracker-n8nl:/app# ls
-issues  issuetracker  manage.py  requirements.txt  staticfiles
-root@issue-tracker-n8nl:/app#
+laborant@dev-machine:~$ uc exec issue-tracker ./manage.py createsuperuser
+Username (leave blank to use 'appuser'): admin
+Email address: admin@example.com
+Password:
+Password (again):
+Superuser created successfully.
 ```
 
-You can also pass the commands as arguments to `uc exec` to run them directly:
-
-```text
-laborant@dev-machine:~$ uc exec issue-tracker ps -ef
-UID          PID    PPID  C STIME TTY          TIME CMD
-root           1       0  0 21:51 ?        00:00:00 sh -c python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
-root           8       1  0 21:51 ?        00:00:00 /usr/local/bin/python3.14 /usr/local/bin/gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
-root           9       8  0 21:51 ?        00:00:00 /usr/local/bin/python3.14 /usr/local/bin/gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
-root          10       8  0 21:51 ?        00:00:00 /usr/local/bin/python3.14 /usr/local/bin/gunicorn --bind 0.0.0.0:8000 --workers 2 issuetracker.wsgi:application
-root         273       0 50 22:22 pts/0    00:00:00 ps -ef
-```
+You can now log in to the Django admin panel: just click on the "Admin" button in the top right corner of the application page and use the credentials you just created.
 
 ## Next Steps
 
-Congratulations! You've successfully deployed a Django application to Uncloud, made it accessible to the outside world, checked the logs, and even executed commands inside the running container. You've got a solid foundation to build upon.
+Congratulations! You've successfully deployed a Django application to Uncloud, made it accessible to the outside world, checked the logs, and even executed management commands inside the running container. You've got a solid foundation to build upon.
 
 Here are some things you can explore next:
 
