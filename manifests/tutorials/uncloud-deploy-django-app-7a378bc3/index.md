@@ -14,7 +14,7 @@ tagz:
   - uncloud
 
 createdAt: 2026-01-11
-updatedAt: 2026-01-11
+updatedAt: 2026-03-14
 
 cover: __static__/django-plus-uc.png
 
