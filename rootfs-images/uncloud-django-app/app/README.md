@@ -1,55 +1,38 @@
 # Django Issue Tracker
 
-A minimal, modern issue tracking web application built with Django 5.2 LTS.
+A minimal issue tracking web application built with Django 5.2 LTS. Used as the sample app for the [How to Deploy a Django Web Application with Uncloud](https://labs.iximiuz.com/tutorials/uncloud-deploy-django-app-7a378bc3) tutorial on iximiuz Labs.
 
 ## Features
 
-- ✅ Full CRUD operations for issues
-- ✅ Status tracking (Open, In Progress, Done)
-- ✅ Priority levels (Low, Medium, High)
-- ✅ Comment system for issues
-- ✅ Modern, responsive UI
-- ✅ Django admin interface
-- ✅ Docker-ready with data persistence
+- Full CRUD operations for issues
+- Status tracking (Open, In Progress, Done)
+- Priority levels (Low, Medium, High)
+- Comment system
+- Django admin interface
+- SQLite database with Docker volume persistence
 
-## Quick Start
+## Tech Stack
 
-### Local Development
+- Python 3.14
+- Django 5.2 LTS
+- Gunicorn 23
+- SQLite
 
-```bash
-# Install dependencies
-uv sync
+## Local Development
 
-# Run migrations
-uv run python manage.py migrate
-
-# Create superuser
-uv run python manage.py createsuperuser
-
-# Run server
-uv run python manage.py runserver
+```sh
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
 Visit http://localhost:8000/
 
-### Docker Deployment
+## Deployment with Uncloud
 
-```bash
-# Build image
-docker build -t issue-tracker .
-
-# Run with volume persistence
-docker run -d -p 8000:8000 -v issue-tracker-data:/data issue-tracker
+```sh
+cd ~/app
+uc deploy
 ```
 
-## Tech Stack
-
-- Django 5.2 LTS
-- SQLite with Docker volume persistence
-- Gunicorn WSGI server
-- Python 3.12
-- Modern CSS
-
-## Documentation
-
-See `SPEC.md` for complete specification.
+See the [tutorial](https://labs.iximiuz.com/tutorials/uncloud-deploy-django-app-7a378bc3) for a full walkthrough.

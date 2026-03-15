@@ -37,10 +37,6 @@ Docs: [How to Author Tutorials on iximiuz Labs](https://labs.iximiuz.com/tutoria
 Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tutorial/index.md?plain=1
 -->
 
-## TL;DR
-
-Go to your application directory with the prepared `Dockerfile` and `compose.yaml` files, and run `uc deploy`. Voilà!
-
 <!-- prettier-ignore-start -->
 ::image-box
 ---
@@ -52,13 +48,15 @@ Go to your application directory with the prepared `Dockerfile` and `compose.yam
 ::
 <!-- prettier-ignore-end -->
 
-Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen different tools and cloud services?
-
 In this hands-on tutorial, you'll learn how to deploy a Django web application quickly and easily from source code to a remote Linux server using **Uncloud**.
+
+**TL;DR:** Go to your application directory with the prepared `Dockerfile` and `compose.yaml` files, and run `uc deploy`. Voilà!
 
 ::remark-box
 💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress - all without the complexity of Kubernetes.
 ::
+
+Imagine you have developed a web application that works well in your local development environment. It is time now to deploy it somewhere for the rest of the world to use and enjoy. How do we do this without fighting our way through a dozen different tools and cloud services? Uncloud to the rescue!
 
 **Prerequisites**
 
@@ -85,7 +83,7 @@ Let's get started!
 
 ## Tutorial Environment
 
-It is highly encouraged to take advantage of the interactive features of the [iximiuz Labs platform](https://labs.iximiuz.com/about) and follow the tutorial by executing the commands in the interactive environment.
+We highly encourage you to take advantage of the interactive features of the [iximiuz Labs platform](https://labs.iximiuz.com/about) and follow the tutorial by executing the commands in the interactive environment.
 
 To get started, click the "Start Tutorial" button located under the table of contents on the left side of the screen (go ahead, do it now!). After a few seconds, you'll see a terminal on the right side of your screen.
 
@@ -97,6 +95,10 @@ In this tutorial, you have access to the following machines:
 ## Preparing Your Django Application
 
 The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. It is a sample issue tracking application built with Django that we'll be using as an example.
+
+::remark-box
+💡 The original source code of the application can be found [here on GitHub](https://github.com/tonyo/uncloud-labs/tree/main/rootfs-images/uncloud-django-app/app).
+::
 
 ### Understanding the Application Structure
 
