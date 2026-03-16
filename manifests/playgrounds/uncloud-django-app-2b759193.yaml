@@ -133,8 +133,8 @@ playground:
             run: docker pull caddy:latest
     accessControl:
         canList:
-            - owner
+            - anyone
         canRead:
-            - owner
+            - anyone
         canStart:
-            - owner
+            - anyone
