@@ -113,7 +113,7 @@ playground:
                 ### Init cluster
 
                 # Add first machine
-                uc machine init --no-dns -n server-1 laborant@server-1
+                uc machine init --no-dns --public-ip none -n server-1 laborant@server-1
 
                 # Add second machine
                 uc machine add -n server-2 laborant@server-2 --yes
