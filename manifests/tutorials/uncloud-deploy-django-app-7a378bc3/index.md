@@ -50,7 +50,7 @@ Source code: https://github.com/iximiuz/labs/blob/main/content-samples/sample-tu
 
 In this hands-on tutorial, you'll learn how to deploy a Django web application quickly and easily from source code to a remote Linux server using **Uncloud**.
 
-**TL;DR:** Go to your application directory with the prepared `Dockerfile` and `compose.yaml` files, and run `uc deploy`. Voilà!
+**TL;DR:** Go to your application directory (`~/app`) with the prepared `Dockerfile` and `compose.yaml` files, and run `uc deploy`. Voilà!
 
 ::remark-box
 💡 **What is Uncloud?** [Uncloud](https://uncloud.run/docs/) is a lightweight clustering and container orchestration tool that lets you deploy and manage web applications across cloud VMs and bare metal servers. It creates a secure [WireGuard](https://www.wireguard.com/) mesh network between Docker hosts and provides automatic service discovery, load balancing, and HTTPS ingress - all without the complexity of Kubernetes.
@@ -90,7 +90,7 @@ To get started, click the "Start Tutorial" button located under the table of con
 In this tutorial, you have access to the following machines:
 
 - :tab{text='dev-machine' machine='dev-machine'} - the control-only environment where you'll prepare the application and run Uncloud CLI commands. Think of it as your developer machine that you'll use to control the cluster remotely. The Uncloud cluster is already initialized and can be managed by the `uc` command.
-- :tab{text='server-1' machine='server-1'}, :tab{text='server-2' machine='server-2'} - two Ubuntu machines that are already part of an initialized Uncloud cluster where your application will be deployed.
+- :tab{text='server-1' machine='server-1'} - an Ubuntu machine that is already part of an initialized Uncloud cluster where your application will be deployed.
 
 ## Preparing Your Django Application
 
@@ -197,31 +197,13 @@ CMD ["sh", "-c", "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 --wor
 📝 **Dependency management**: We're using plain `pip` and `requirements.txt` file to manage Python dependencies in this tutorial, mainly to keep the focus on Uncloud-related concepts. For modern alternatives, we recommend looking at [uv](https://docs.astral.sh/uv/) as a universal Python package and environment manager.
 ::
 
-### Testing the Docker Build
+If you want to check that your Dockerfile is functional, you can run a traditional `docker build -t issue-tracker .`. Spoiler alert: with Uncloud you won't need to run this command manually ;)
 
-Before deploying with Uncloud, let's verify that our Docker image builds successfully:
-
-```sh
-cd ~/app
-docker build -t issue-tracker .
-```
-
-You should see Docker building the image layer by layer.
-
-You can verify the image was created:
-
-```
-laborant@dev-machine:app$ docker images
-
-IMAGE                  ID             DISK USAGE   CONTENT SIZE   EXTRA
-issue-tracker:latest   96b10b1a9bfc        263MB         57.5MB
-```
-
-## Deploying to Uncloud Cluster
+## Deploying to an Uncloud Cluster
 
 Now that we've confirmed the image builds successfully, we have everything we need to deploy the application using Uncloud.
 
-### Creating a Compose File
+### Using a Compose File
 
 Uncloud uses the [Compose Specification](https://compose-spec.io/) to define deployment configurations. Let's have a look at the `compose.yaml` file in the application directory:
 
@@ -266,26 +248,24 @@ uc deploy
 You'll see output similar to:
 
 ```
-Building service 'issue-tracker'...
-
-[+] Building 45.2s (10/10) FINISHED
-
 [+] Building 1/1
- ✔ app/issue-tracker:2026-02-22-215149  Built
+ ✔ app/issue-tracker:2026-03-17-205422  Built
 
-[+] Pushing image app/issue-tracker:2026-02-22-215149 to cluster
+[+] Pushing image app/issue-tracker:2026-03-17-205422 to cluster
 
 Deployment plan
+- server-1: Create volume [name=db_data]
 - Deploy service [name=issue-tracker]
-  - server-1: Run container [image=app/issue-tracker:2026-02-22-215149]
+  - server-1: Run container [image=app/issue-tracker:2026-03-17-205422]
 
 Do you want to continue?
 
 Choose [y/N]: y
 Chose: Yes!
 
-[+] Deploying services 1/1
- ✔ Container issue-tracker-n8nl on server-1  Started
+[+] Deploying services 2/2
+ ✔ Volume db_data on server-1                Created
+ ✔ Container issue-tracker-hhk5 on server-1  Running
 ```
 
 Congratulations, your Django application is now running on the Uncloud cluster 🎉
@@ -317,7 +297,7 @@ You should see output similar to:
 ```
 NAME            MODE         REPLICAS   IMAGE                                 ENDPOINTS
 caddy           global       2          caddy:2.10.2
-issue-tracker   replicated   1          app/issue-tracker:2026-02-22-215149   http://issue-tracker.internal → :8000
+issue-tracker   replicated   1          app/issue-tracker:2026-03-17-205422   http://issue-tracker.internal → :8000
 ```
 
 ::remark-box
@@ -338,7 +318,7 @@ Name:       issue-tracker
 Mode:       replicated
 
 CONTAINER ID   IMAGE                                 CREATED         STATUS         IP ADDRESS   MACHINE
-6b32aa328c13   app/issue-tracker:2026-02-22-215149   5 minutes ago   Up 5 minutes   10.210.0.3   server-1
+6b32aa328c13   app/issue-tracker:2026-03-17-205422   5 minutes ago   Up 5 minutes   10.210.0.3   server-1
 ```
 
 ## Accessing Your Application
@@ -363,7 +343,7 @@ You should see the Django issue tracker homepage with a couple pre-created issue
 You can also reach the service from the :tab{text='dev-machine' machine='dev-machine'} terminal using tools like `curl`. In that case, make sure to specify the correct "Host" header:
 
 ```sh
-# You can target ANY server of the cluster (server-1 or server-2)
+# You can target ANY server of the cluster if there are multiple
 curl --header 'Host: issue-tracker.internal' server-1
 ```
 
@@ -378,45 +358,6 @@ In a production environment with Uncloud:
 ::remark-box
 📚 **Learn More**: For detailed information about publishing services to the internet with custom domains and automatic TLS, check out the [Publishing Services](https://uncloud.run/docs/concepts/ingress/publishing-services) documentation.
 ::
-
----
-
-## Making Updates
-
-One of the powerful features of Uncloud is how easy it is to deploy updates. Let's say you made changes to your application code. Simply run the deploy command again:
-
-```sh
-uc deploy
-```
-
-Uncloud will:
-
-1. Detect the changes
-2. Rebuild the container image if necessary
-3. Push only the changed layers to the cluster
-4. Perform a zero-downtime rolling update
-
-Your new version will be deployed without any service interruption.
-
-### Deploying Configuration Changes Only
-
-If you only changed the `compose.yaml` file (for example, updated environment variables) without modifying the application code, you can deploy just the configuration:
-
-```sh
-uc deploy --no-build
-```
-
-This skips the build step and only updates the service configuration.
-
-<!-- prettier-ignore-start -->
-::remark-box
----
-kind: warning
----
-
-⚠️ **Image Tag Considerations**: When using dynamic image tags based on Git state (which is the default when your project is part of a git repository), deploying with `--no-build` may fail if the tag has changed. See [Deploy configuration changes only](https://uncloud.run/docs/guides/deployments/deploy-app/#deploy-configuration-changes-only) in the official docs for best practices.
-::
-<!-- prettier-ignore-end -->
 
 ## Checking Application Logs
 
