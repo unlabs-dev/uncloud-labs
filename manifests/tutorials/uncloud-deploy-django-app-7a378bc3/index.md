@@ -296,7 +296,7 @@ You should see output similar to:
 
 ```
 NAME            MODE         REPLICAS   IMAGE                                 ENDPOINTS
-caddy           global       2          caddy:2.10.2
+caddy           global       1          caddy:2.10.2
 issue-tracker   replicated   1          app/issue-tracker:2026-03-17-205422   http://issue-tracker.internal → :8000
 ```
 
@@ -416,10 +416,10 @@ Congratulations! You've successfully deployed a Django application to Uncloud, m
 
 Here are some things you can explore next:
 
-1. **Add a Database Service**: Extend your `compose.yaml` to include a PostgreSQL database service instead of SQLite
-2. **Environment Variables**: Use environment variables for sensitive configuration like database passwords or API keys
-3. **Multiple Services**: Deploy additional services like Redis for caching or Celery for background tasks
-4. **Scale Your Service**: Try scaling your service to multiple replicas with [`uc scale`](https://uncloud.run/docs/cli-reference/uc_scale): `uc scale issue-tracker 2`
+1. **Add a database service**: Extend your `compose.yaml` to include a PostgreSQL database service instead of SQLite
+2. **Multiple Services**: Deploy additional services like Redis for caching or Celery for background tasks
+3. **Scale Your Service**: Try scaling your service to multiple replicas with [`uc scale`](https://uncloud.run/docs/cli-reference/uc_scale): `uc scale issue-tracker 2`
+4. **Move the service to another machine**: add `server-2` to the cluster and try to [schedule your service on that specific machine](https://uncloud.run/docs/guides/deployments/deploy-specific-machines/).
 
 ### Additional Resources
 
