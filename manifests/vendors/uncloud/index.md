@@ -30,7 +30,7 @@ playgrounds:
   uncloud-cluster-64523f7c: {}
 ---
 
-# Uncloud
+<img src="__static__/logo-title.svg" width="40%" style="display: block; margin: 0 auto;" alt="Uncloud logo">
 
 [Uncloud](https://uncloud.run) is a lightweight tool for deploying and managing containerised applications across a cluster of Linux machines. Connect any cloud VMs or bare-metal servers into a secure [WireGuard](https://www.wireguard.com/) mesh network, then deploy and scale services using familiar [Docker Compose](https://docs.docker.com/reference/compose-file/) files and Docker-like CLI commands.
 
@@ -69,7 +69,7 @@ items:
 ::
 <!-- prettier-ignore-end -->
 
-In this tutorial the cluster has two server nodes (`server-1`, `server-2`) and a `dev-machine` control node with the `uc` CLI ready to use:
+The playground has two server nodes (`server-1`, `server-2`) and a `dev-machine` control node with the `uc` CLI ready to use:
 
 ```sh
 # List all machines in the cluster
