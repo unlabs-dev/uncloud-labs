@@ -84,6 +84,31 @@ stream-tutorial/%:
 	labctl content push tutorial -f -w $* -d $(TUTORIALS_DIR)/$*/
 .PHONY: push-stream-tutorial/%
 
+### Vendors
+
+VENDORS_DIR = $(MANIFESTS_DIR)/vendors
+VENDOR_IDS = uncloud
+
+pull-vendors:
+	@mkdir -p $(VENDORS_DIR)
+	@for vendor in $(VENDOR_IDS); do \
+		echo '---'; \
+		labctl content pull vendor $$vendor -f -d $(VENDORS_DIR)/$$vendor; \
+	done
+.PHONY: pull-vendors
+
+push-vendors:
+	@for vendor in $(VENDOR_IDS); do \
+		echo '---'; \
+		labctl content push vendor $$vendor -f -d $(VENDORS_DIR)/$$vendor/ && \
+		echo ">>> Pushed vendor: $$vendor"; \
+	done
+.PHONY: push-vendors
+
+stream-vendor/%:
+	labctl content push vendor -f -w $* -d $(VENDORS_DIR)/$*/
+.PHONY: stream-vendor/%
+
 IXIMIUZ_LABS_DIR = vendor/iximiuz-labs
 
 download-iximiuz-rules:
