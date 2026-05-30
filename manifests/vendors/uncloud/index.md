@@ -20,7 +20,7 @@ tagz:
 createdAt: 2026-05-28
 updatedAt: 2026-05-29
 
-cover: __static__/cover.png
+cover: __static__/logo-wide.png
 
 tutorials:
   uncloud-create-cluster-ebebf72b: {}
