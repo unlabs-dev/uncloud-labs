@@ -1,8 +1,7 @@
 ---
 kind: page
 
-# Issue: currently title should be more at least 10 characters long
-title: Uncloud.run
+title: Uncloud
 
 description: |-
   Deploy and manage containerised apps across servers — without Kubernetes overhead.
