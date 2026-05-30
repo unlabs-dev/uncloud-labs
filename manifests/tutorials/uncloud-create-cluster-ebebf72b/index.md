@@ -296,4 +296,4 @@ Congratulations! You've successfully created a multi-machine Uncloud cluster and
 
 ## Questions or Feedback?
 
-Run into any issues or have ideas to improve this tutorial? Open an issue or contribute a fix on GitHub: https://github.com/tonyo/uncloud-labs/
+Run into any issues or have ideas to improve this tutorial? Open an issue or contribute a fix on GitHub: https://github.com/unlabs-dev/uncloud-labs/

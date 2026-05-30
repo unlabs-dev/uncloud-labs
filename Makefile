@@ -1,6 +1,6 @@
 ### Targets and structure inspired by https://github.com/iximiuz/labs-playgrounds/blob/main/Makefile
 
-IMAGE_REPO = ghcr.io/tonyo/uncloud-labs/rootfs
+IMAGE_REPO = ghcr.io/unlabs-dev/uncloud-labs/rootfs
 MANIFESTS_DIR = manifests
 DOCKER_BUILD_FLAGS ?=
 

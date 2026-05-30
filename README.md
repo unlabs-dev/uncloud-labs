@@ -7,19 +7,19 @@ Playground and tutorial configurations for [iximiuz Labs](https://labs.iximiuz.c
 This repository builds the following rootfs images in the form of Docker images:
 
 - **rootfs-images/uncloud-devmachine**: Development environment with Docker and Uncloud CLI
-  - `ghcr.io/tonyo/uncloud-labs/rootfs:uncloud-devmachine`
+  - `ghcr.io/unlabs-dev/uncloud-labs/rootfs:uncloud-devmachine`
 
 - **rootfs-images/uncloud-server**: Server environment with Docker and Uncloud server components
-  - `ghcr.io/tonyo/uncloud-labs/rootfs:uncloud-server`
+  - `ghcr.io/unlabs-dev/uncloud-labs/rootfs:uncloud-server`
 
 - **rootfs-images/uncloud-django-app**: Development environment for the Django app tutorial
-  - `ghcr.io/tonyo/uncloud-labs/rootfs:uncloud-django-app`
+  - `ghcr.io/unlabs-dev/uncloud-labs/rootfs:uncloud-django-app`
 
 These images can
 
 ### Image Repository
 
-All images are published to [`ghcr.io/tonyo/uncloud-labs/rootfs`](https://github.com/tonyo/uncloud-labs/pkgs/container/uncloud-labs%2Frootfs) with the corresponding tags.
+All images are published to [`ghcr.io/unlabs-dev/uncloud-labs/rootfs`](https://github.com/unlabs-dev/uncloud-labs/pkgs/container/uncloud-labs%2Frootfs) with the corresponding tags.
 
 ## Development
 

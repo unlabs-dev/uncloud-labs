@@ -97,7 +97,7 @@ In this tutorial, you have access to the following machines:
 The Django application source code is already available on :tab{text='dev-machine' machine='dev-machine'} in the `~/app` directory. It is a sample issue tracking application built with Django that we'll be using as an example.
 
 ::remark-box
-💡 The original source code of the application can be found [here on GitHub](https://github.com/tonyo/uncloud-labs/tree/main/rootfs-images/uncloud-django-app/app).
+💡 The original source code of the application can be found [here on GitHub](https://github.com/unlabs-dev/uncloud-labs/tree/main/rootfs-images/uncloud-django-app/app).
 ::
 
 ### Understanding the Application Structure
@@ -431,4 +431,4 @@ Happy deploying! 🚀
 
 ## Questions or Feedback?
 
-Run into any issues or have ideas to improve this tutorial? Open an issue or contribute a fix on GitHub: https://github.com/tonyo/uncloud-labs/
+Run into any issues or have ideas to improve this tutorial? Open an issue or contribute a fix on GitHub: https://github.com/unlabs-dev/uncloud-labs/
