@@ -3,6 +3,7 @@
 IMAGE_REPO = ghcr.io/unlabs-dev/uncloud-labs/rootfs
 MANIFESTS_DIR = manifests
 DOCKER_BUILD_FLAGS ?=
+UNCLOUD_VERSION ?= v0.17.1
 
 all:
 	exit 1
@@ -11,13 +12,16 @@ build-img-%:
 	docker build \
 		--progress plain \
 		$(DOCKER_BUILD_FLAGS) \
+		--build-arg UNCLOUD_VERSION=$(UNCLOUD_VERSION) \
 		-f ./rootfs-images/$*/Dockerfile \
 		-t $(IMAGE_REPO):$* \
+		-t $(IMAGE_REPO):$*-$(UNCLOUD_VERSION) \
 		.
 .PHONY: build-img-%
 
 push-img-%: build-img-%
 	docker push $(IMAGE_REPO):$*
+	docker push $(IMAGE_REPO):$*-$(UNCLOUD_VERSION)
 .PHONY: push-img-%
 
 test-img-%: build-img-%
