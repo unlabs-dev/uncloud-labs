@@ -115,10 +115,10 @@ playground:
                 ### Init cluster
 
                 # Add first machine
-                uc machine init --no-dns --public-ip none -n server-1 laborant@server-1
+                script -q -c "uc machine init --no-dns --public-ip none -n server-1 laborant@server-1 --yes" /dev/null
 
                 # Add second machine
-                uc machine add --public-ip none -n server-2 laborant@server-2 --yes
+                script -q -c "uc machine add --public-ip none -n server-2 laborant@server-2 --yes" /dev/null
         init_server_1_1:
             name: init_server_1_1
             machine: server-1
